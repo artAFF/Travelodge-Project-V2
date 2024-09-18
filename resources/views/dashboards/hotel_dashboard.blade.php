@@ -2,6 +2,8 @@
 @section('title', 'Hotel Dashboard')
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         #viewSelector,
@@ -13,10 +15,34 @@
             border: 1px solid #ced4da;
             border-radius: 4px;
             padding: 5px 10px;
+            transition: all 0.3s ease;
+        }
+
+        #viewSelector:focus,
+        #dateFilter:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
         }
 
         .form-group {
             margin-left: 20px;
+        }
+
+        .chart-container {
+            transition: transform 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: scale(1.02);
+        }
+
+        .card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         @media (max-width: 768px) {
@@ -44,8 +70,8 @@
     <div class="container-fluid px-4">
         <div class="row mb-3">
             <div class="col-12 d-flex justify-content-between align-items-center flex-wrap">
-                <h1>Dashboard for {{ $hotel_name }}</h1>
-                <div class="d-flex">
+                <h1 class="animate__animated animate__fadeInDown">Dashboard for {{ $hotel_name }}</h1>
+                <div class="d-flex animate__animated animate__fadeInRight">
                     <div class="form-group mb-0">
                         <select id="viewSelector" class="form-control">
                             <option value="category">Category</option>
@@ -79,22 +105,22 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 animate__animated animate__fadeInLeft">
                 <h2 class="text-center">Bar Chart</h2>
-                <div style="height: 400px; width: 100%;">
+                <div class="chart-container" style="height: 400px; width: 100%;">
                     <canvas id='barChart'></canvas>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 animate__animated animate__fadeInRight">
                 <h2 class="text-center">Pie Chart</h2>
-                <div style="height: 400px; width: 100%;">
+                <div class="chart-container" style="height: 400px; width: 100%;">
                     <canvas id='pieChart'></canvas>
                 </div>
             </div>
         </div>
 
         <div class="row mt-4">
-            <div class="col-12">
+            <div class="col-12 animate__animated animate__fadeInUp">
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title text-center mb-4"><span id="reportTitle"></span> Reports</h3>
@@ -138,6 +164,10 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const index = elements[0].index;
@@ -166,6 +196,10 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const index = elements[0].index;
@@ -198,6 +232,15 @@
             });
 
             document.getElementById('reportTitle').textContent = currentView.charAt(0).toUpperCase() + currentView.slice(1);
+
+            anime({
+                targets: '#reportCards .card',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                delay: anime.stagger(100),
+                duration: 800,
+                easing: 'easeOutQuad'
+            });
         }
 
         function showDetailTable(label) {

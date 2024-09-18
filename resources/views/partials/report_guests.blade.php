@@ -1,63 +1,67 @@
-<div class="container">
-    @if (count($ReportGuests) > 0)
-        <h1 class="text text-center">All Report Daily Checklist on <b class='text-danger'>Guest Rooms</b></h1><br>
-
-        <a href="{{ route('addGuest', ['type' => $source]) }}" class="btn btn-primary">Add Guest Room Check</a>
-        <table class="table table-striped table-hover ">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    @if ($source == 'tlcmn')
-                        <th scope="col">Location</th>
-                        <th scope="col">Room No.</th>
-                    @else
-                        <th scope="col">Room No.</th>
-                        <th scope="col">Location</th>
-                    @endif
-                    <th scope="col">Downlaod</th>
-                    <th scope="col">Upload</th>
-                    <th scope="col">Channel Number</th>
-                    <th scope="col">Channel Name</th>
-                    <th scope="col">Created Time</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($ReportGuests as $ReportGuest)
-                    <tr>
-                        <th scope="row">{{ $ReportGuest->id }}</th>
-                        <td>{{ $ReportGuest->location }}</td>
-                        <td>{{ $ReportGuest->room_no }}</td>
-                        <td>{{ $ReportGuest->download }}</td>
-                        <td>{{ $ReportGuest->upload }}</td>
-                        <td>{{ $ReportGuest->ch_no }}</td>
-                        <td>{{ $ReportGuest->ch_name }}</td>
-                        <td>{{ \Carbon\Carbon::parse($ReportGuest->created_at)->format('d/m/Y H:i:s') }}</td>
-                        <td>
-                            <a href="{{ route('updateGuest', ['type' => $source, 'id' => $ReportGuest->id]) }}"
-                                class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
-
-                            <form action="{{ route('deleteGuest', ['type' => $source, 'id' => $ReportGuest->id]) }}"
-                                method="POST" style="display: inline-block;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Are you sure you want to delete this report?')">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="justify-content-center">
-            {{ $ReportGuests->links() }}
-        </div>
-    @else
-        <h2 class="text text-center py-5">
-            No data found, Please add report guest room
-            <a href="/guest/addGuest" class="btn btn-primary px-5 ms-2">Add</a>
-        </h2>
-    @endif
+<div class="card shadow-sm animate-slide-up">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">Guest Rooms Report</h2>
+    </div>
+    <div class="card-body">
+        @if (count($ReportGuests) > 0)
+            <a href="{{ route('addGuest', ['type' => $source]) }}" class="btn btn-success mb-3">
+                <i class="bi bi-plus-circle"></i> Add Guest Room Check
+            </a>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Location</th>
+                            <th>Room No.</th>
+                            <th>Download</th>
+                            <th>Upload</th>
+                            <th>Channel Number</th>
+                            <th>Channel Name</th>
+                            <th>Created Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($ReportGuests as $ReportGuest)
+                            <tr>
+                                <td>{{ $ReportGuest->id }}</td>
+                                <td>{{ $ReportGuest->location }}</td>
+                                <td>{{ $ReportGuest->room_no }}</td>
+                                <td>{{ $ReportGuest->download }}</td>
+                                <td>{{ $ReportGuest->upload }}</td>
+                                <td>{{ $ReportGuest->ch_no }}</td>
+                                <td>{{ $ReportGuest->ch_name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($ReportGuest->created_at)->format('d/m/Y H:i:s') }}</td>
+                                <td>
+                                    <a href="{{ route('updateGuest', ['type' => $source, 'id' => $ReportGuest->id]) }}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form
+                                        action="{{ route('deleteGuest', ['type' => $source, 'id' => $ReportGuest->id]) }}"
+                                        method="POST" style="display: inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to delete this report?')">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="justify-content-center">
+                {{ $ReportGuests->links() }}
+            </div>
+        @else
+            <div class="alert alert-info">
+                No data found. <a href="{{ route('addGuest', ['type' => $source]) }}"
+                    class="btn btn-primary btn-sm">Add Guest Room Check</a>
+            </div>
+        @endif
+    </div>
 </div>

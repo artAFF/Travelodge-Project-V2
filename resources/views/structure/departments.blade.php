@@ -1,44 +1,56 @@
 @extends('layouts.app')
 @section('title', 'Manage Departments')
 @section('content')
-    <div class="container">
-        <h2>Manage Departments</h2>
+    <div class="container animate-fade-in">
+        <h2 class="my-4 text-center">Manage Departments</h2>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form action="{{ route('structure.departments.store') }}" method="POST" class="mb-4">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" name="name" class="form-control" placeholder="New Department Name"
+                                required>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="position" class="form-select" required>
+                                <option value="">Add after...</option>
+                                @foreach ($departments as $department)
+                                    <option value="{{ $department->id }}">after {{ $department->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus-circle me-2"></i>Add Department
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        <form action="{{ route('structure.departments.store') }}" method="POST" class="mb-4">
-            @csrf
-            <div class="row">
-                <div class="col-md-4">
-                    <input type="text" name="name" class="form-control" placeholder="New Department Name" required>
-                </div>
-                <div class="col-md-4">
-                    <select name="position" class="form-control" required>
-                        <option value="">Add after...</option>
-                        @foreach ($departments as $department)
-                            <option value="{{ $department->id }}">after {{ $department->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary">Add Department</button>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($departments as $department)
+                                <tr class="animate-row">
+                                    <td>{{ $department->id }}</td>
+                                    <td>{{ $department->name }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </form>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($departments as $department)
-                    <tr>
-                        <td>{{ $department->id }}</td>
-                        <td>{{ $department->name }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        </div>
     </div>
 @endsection

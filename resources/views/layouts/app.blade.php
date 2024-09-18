@@ -34,12 +34,29 @@
             align-items: center;
             font-size: 0.95rem;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .nav-link:hover {
-            background-color: var(--primary-color);
             color: white;
             transform: translateX(5px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #3498db, #2ecc71, #9b59b6);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: translateX(0);
         }
 
         .nav-link.active {
@@ -122,6 +139,26 @@
                 padding: 1rem;
             }
         }
+
+        .dashboard-title {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-title:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 
@@ -133,7 +170,7 @@
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
                     <a href="/"
                         class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5 d-none d-sm-inline">IT Support Dashboard</span>
+                        <span class="dashboard-title">IT Support System</span>
                     </a>
                     @auth
                         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
