@@ -30,22 +30,27 @@ class CreateController extends Controller
 {
     public function __construct()
     {
+        // Require authentication for all methods in this controller
         $this->middleware('auth');
     }
 
     public function AddReportIssue()
     {
+        // Fetch all categories and departments
         $categories = Category::all();
         $departments = Department::all();
+        // Get IT Support users
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');
         })->get();
 
+        // Return view with data
         return view('/reports/addIssue', compact('categories', 'departments', 'itSupportUsers'));
     }
 
     public function InsertReportIssue(Request $request)
     {
+        // Validate incoming request data
         $request->validate([
             'issues.*.category_id' => 'required|exists:categories,id',
             'issues.*.department_id' => 'required|exists:departments,id',
@@ -58,6 +63,7 @@ class CreateController extends Controller
         $issues = $request->input('issues');
 
         foreach ($issues as $index => $issueData) {
+            // Create new Travelodge issue
             $travelodge = Travelodge::create([
                 'category_id' => $issueData['category_id'],
                 'department_id' => $issueData['department_id'],
@@ -68,6 +74,7 @@ class CreateController extends Controller
                 'remarks' => $issueData['remarks'] ?? null,
             ]);
 
+            // Handle file upload if present
             if ($request->hasFile("issues.{$index}.file")) {
                 $file = $request->file("issues.{$index}.file");
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -84,11 +91,13 @@ class CreateController extends Controller
 
     private function sendLineNotification($travelodge, $issueData)
     {
+        // Line Notify configuration
         $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
         $messageUrl = 'https://notify-api.line.me/api/notify';
 
         $client = new \GuzzleHttp\Client();
 
+        // Prepare notification message
         $message = "New Issue Reported:\n";
         $message .= "  - Issue Category: " . ($travelodge->category->name ?? 'N/A') . "\n";
         $message .= "  - Detail: " . $travelodge->detail . "\n";
@@ -99,6 +108,7 @@ class CreateController extends Controller
         $message .= "  - Assignee: " . ($travelodge->assignee->name ?? 'Unassigned') . "\n";
         $message .= "  - Status: " . ($travelodge->status == 0 ? 'In-progress' : 'Done');
 
+        // Send notification
         try {
             $response = $client->post($messageUrl, [
                 'headers' => [
@@ -111,21 +121,23 @@ class CreateController extends Controller
             ]);
 
             if ($response->getStatusCode() !== 200) {
-                /* \Log::error('Line Notify error: ' . $response->getBody()); */
+                // Log error if needed
             }
         } catch (\Exception $e) {
-            /* \Log::error('Line Notify error: ' . $e->getMessage()); */
+            // Log exception if needed
         }
     }
 
     function AddGuest($type)
     {
+        // Fetch all building names
         $buildings = Building::select('name')->get();
         return view('/guest/addGuest', compact('buildings', 'type'));
     }
 
     public function InsertGuest(Request $request)
     {
+        // Validate guest data
         $request->validate([
             'room_no' => 'required',
             'upload' => 'required',
@@ -138,6 +150,7 @@ class CreateController extends Controller
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'guest');
 
+        // Prepare guest data
         $data = [
             'location' => $request->location,
             'room_no' => $request->room_no,
@@ -148,18 +161,21 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
+        // Insert guest data
         $model::insert($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
     function AddSwitch($type)
     {
+        // Fetch all building names
         $buildings = Building::select('name')->get();
         return view('/switchs/addSwitch', compact('buildings', 'type'));
     }
 
     public function InsertSwitch(Request $request)
     {
+        // Validate switch data
         $request->validate([
             'ups_battery' => 'required',
             'ups_time' => 'required',
@@ -170,6 +186,7 @@ class CreateController extends Controller
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'switch');
 
+        // Prepare switch data
         $data = [
             'location' => $request->location,
             'ups_battery' => $request->ups_battery,
@@ -178,6 +195,7 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
+        // Insert switch data
         $model::insert($data);
         return redirect("/daily/hotels/{$hotel}");
     }
@@ -189,6 +207,7 @@ class CreateController extends Controller
 
     public function InsertServer(Request $request)
     {
+        // Validate server data
         $request->validate([
             'server_temp' => 'required|numeric',
             'ups_temp' => 'required|numeric',
@@ -199,6 +218,7 @@ class CreateController extends Controller
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'server');
 
+        // Prepare server data
         $data = [
             'server_temp' => $request->server_temp,
             'ups_temp' => $request->ups_temp,
@@ -207,18 +227,21 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
+        // Insert server data
         $model::insert($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
     function AddNetSpeed($type)
     {
+        // Fetch all building names
         $buildings = Building::select('name')->get();
         return view('/netspeed/addNetSpeed', compact('buildings', 'type'));
     }
 
     public function InsertNetSpeed(Request $request)
     {
+        // Validate net speed data
         $request->validate([
             'upload' => 'required',
             'download' => 'required',
@@ -228,6 +251,7 @@ class CreateController extends Controller
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'net');
 
+        // Prepare net speed data
         $data = [
             'location' => $request->location,
             'upload' => $request->upload,
@@ -235,12 +259,14 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
+        // Insert net speed data
         $model::insert($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
     private function getModelFromType($type, $modelType)
     {
+        // Return the appropriate model class based on hotel type and model type
         switch ($type) {
             case 'tlcmn':
                 return "App\\Models\\Tlcmn_{$modelType}";

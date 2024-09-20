@@ -34,11 +34,13 @@ class UpdateController extends Controller
 {
     public function __construct()
     {
+        // Require authentication for all methods in this controller
         $this->middleware('auth');
     }
 
     public function UpdateReportIssue($id)
     {
+        // Fetch the report issue and related data for updating
         $ReportIssues = Travelodge::findOrFail($id);
         $categories = Category::all();
         $departments = Department::all();
@@ -51,6 +53,7 @@ class UpdateController extends Controller
 
     public function UpdateIssue(Request $request, $id)
     {
+        // Validate update data
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'department_id' => 'required|exists:departments,id',
@@ -63,6 +66,7 @@ class UpdateController extends Controller
 
         $travelodge = Travelodge::findOrFail($id);
 
+        // Update the issue
         $travelodge->update([
             'category_id' => $request->category_id,
             'department_id' => $request->department_id,
@@ -86,6 +90,7 @@ class UpdateController extends Controller
             $travelodge->update(['file_path' => $filePath]);
         }
 
+        // Send Line notification about the update
         $this->sendLineNotification($travelodge);
 
         return redirect($request->input('previous_url'));
@@ -93,6 +98,7 @@ class UpdateController extends Controller
 
     private function sendLineNotification($travelodge)
     {
+        // Send Line notification about updated issue
         $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
         $messageUrl = 'https://notify-api.line.me/api/notify';
 
@@ -131,12 +137,14 @@ class UpdateController extends Controller
     public function updateStatus(Request $request, $id)
     {
         try {
+            // Update the status of an issue
             $report = Travelodge::findOrFail($id);
             $oldStatus = $report->status;
             $newStatus = $request->status;
             $report->status = $newStatus;
             $report->save();
 
+            // Send Line notification about status update
             $lineSent = $this->sendStatusUpdateNotification($report, $oldStatus, $newStatus);
 
             return response()->json([
@@ -145,7 +153,6 @@ class UpdateController extends Controller
                 'line_sent' => $lineSent
             ]);
         } catch (\Exception $e) {
-            /* \Log::error('Status update error: ' . $e->getMessage()); */
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -155,6 +162,7 @@ class UpdateController extends Controller
 
     private function sendStatusUpdateNotification($travelodge, $oldStatus, $newStatus)
     {
+        // Send Line notification about status update
         $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
         $messageUrl = 'https://notify-api.line.me/api/notify';
 
@@ -191,6 +199,7 @@ class UpdateController extends Controller
 
     public function updateAssignee(Request $request, $id)
     {
+        // Validate and update assignee
         $request->validate([
             'assignee_id' => 'nullable|exists:users,id',
         ]);
@@ -206,6 +215,7 @@ class UpdateController extends Controller
         $updatedTravelodge = Travelodge::findOrFail($id);
         $newAssignee = $updatedTravelodge->assignee ? $updatedTravelodge->assignee->name : 'Not Assigned';
 
+        // Send Line notification about assignee update
         $this->sendAssigneeUpdateNotification($updatedTravelodge, $oldAssignee, $newAssignee);
 
         return response()->json([
@@ -217,6 +227,7 @@ class UpdateController extends Controller
 
     private function sendAssigneeUpdateNotification($travelodge, $oldAssignee, $newAssignee)
     {
+        // Send Line notification about assignee update
         $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
         $messageUrl = 'https://notify-api.line.me/api/notify';
 
@@ -248,8 +259,12 @@ class UpdateController extends Controller
         }
     }
 
+    // The following methods handle updates for different entities (Guest, Switch, Server, NetSpeed)
+    // They follow a similar pattern: fetch data, show update form, process update
+
     function UpdateGuest($type, $id)
     {
+        // Show form to update guest information
         $model = $this->getModelFromType($type, 'guest');
         $ReportGuests = $model::where('id', $id)->first();
         $buildings = Building::select('name')->get();
@@ -259,6 +274,7 @@ class UpdateController extends Controller
 
     function UpdateGuestProcess(Request $request, $type, $id)
     {
+        // Process guest information update
         $request->validate([
             'location' => 'required',
             'room_no' => 'required',
@@ -285,6 +301,7 @@ class UpdateController extends Controller
 
     function UpdateSwitch($type, $id)
     {
+        // Show form to update switch information
         $model = $this->getModelFromType($type, 'switch');
         $ReportSwitchs = $model::where('id', $id)->first();
         $buildings = Building::select('name')->get();
@@ -294,6 +311,7 @@ class UpdateController extends Controller
 
     function UpdateSwitchProcess(Request $request, $type, $id)
     {
+        // Process switch information update
         $request->validate([
             'location' => 'required',
             'ups_battery' => 'required',
@@ -316,6 +334,7 @@ class UpdateController extends Controller
 
     function UpdateServer($type, $id)
     {
+        // Show form to update server information
         $model = $this->getModelFromType($type, 'server');
         $ReportServers = $model::where('id', $id)->first();
 
@@ -324,6 +343,7 @@ class UpdateController extends Controller
 
     function UpdateServerProcess(Request $request, $type, $id)
     {
+        // Process server information update
         $request->validate([
             'server_temp' => 'required',
             'ups_temp' => 'required',
@@ -346,6 +366,7 @@ class UpdateController extends Controller
 
     function UpdateReportNetSpeed($type, $id)
     {
+        // Show form to update net speed information
         $model = $this->getModelFromType($type, 'net');
         $ReportNetSpeeds = $model::where('id', $id)->first();
         $buildings = Building::select('name')->get();
@@ -355,6 +376,7 @@ class UpdateController extends Controller
 
     function UpdateReportNetSpeedProcess(Request $request, $type, $id)
     {
+        // Process net speed information update
         $request->validate([
             'location' => 'required',
             'upload' => 'required',
@@ -375,6 +397,7 @@ class UpdateController extends Controller
 
     private function getModelFromType($type, $modelType)
     {
+        // Get the appropriate model class based on hotel type and model type
         switch ($type) {
             case 'tlcmn':
                 return "App\\Models\\Tlcmn_{$modelType}";

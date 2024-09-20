@@ -2,74 +2,160 @@
 @section('title', 'Add Issue')
 
 @section('content')
-    <form action="/insertNetSpeed" method="POST">
-        @csrf
+    <div class="container">
+        <form action="/insertNetSpeed" method="POST">
+            @csrf
 
-        <div class="mb-3">
-            <label for="hotel" class="form-label"><b>Hotel</b></label>
-            <select class="form-select" id="hotel" name="hotel">
-                <option value="tlcmn">TLCMN</option>
-                <option value="ehcm">EHCM</option>
-                <option value="uncm">UNCM</option>
-            </select>
-        </div>
+            <div class="form-section">
+                <h2>Hotel Information</h2>
 
-        <div class="mb-3" id="form1">
-            <label for="location1" class="form-label">Location</label>
-            <select class="form-select" id="location1" name="location1">
-                @foreach ($buildings as $building)
-                    <option value="{{ $building->name }}">{{ $building->name }}</option>
-                @endforeach
-            </select>
-        </div>
+                <div class="form-group mb-3">
+                    <label for="hotel" class="form-label"><b>Hotel</b></label>
+                    <select class="form-select" id="hotel" name="hotel">
+                        <option value="tlcmn">TLCMN</option>
+                        <option value="ehcm">EHCM</option>
+                        <option value="uncm">UNCM</option>
+                    </select>
+                </div>
 
-        <div class="mb-3 hidden" id="form2">
-            <label for="location2" class="form-label">Location</label>
-            <select class="form-select" id="location2" name="location2">
-                <option value="Floor 1">Floor 1</option>
-                <option value="2">Floor 2</option>
-                <option value="3">Floor 3</option>
-                <option value="4">Floor 4</option>
-                <option value="5">Floor 5</option>
-                <option value="6">Floor 6</option>
-                <option value="7">Floor 7</option>
-                <option value="8">Floor 8</option>
-                <option value="9">Floor 9</option>
-            </select>
-        </div>
+                <div class="form-group mb-3" id="form1">
+                    <label for="location1" class="form-label">Location</label>
+                    <select class="form-select" id="location1" name="location1">
+                        @foreach ($buildings as $building)
+                            <option value="{{ $building->name }}">{{ $building->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" value="" id="othersCheckbox">
-            <label class="form-check-label" for="othersCheckbox">
-                Others ( Only EHCM and UNCM )
-            </label>
-        </div>
+                <div class="form-group mb-3 hidden" id="form2">
+                    <label for="location2" class="form-label">Location</label>
+                    <select class="form-select" id="location2" name="location2">
+                        @for ($i = 1; $i <= 9; $i++)
+                            <option value="Floor {{ $i }}">Floor {{ $i }}</option>
+                        @endfor
+                    </select>
+                </div>
 
-        <input type="hidden" id="location" name="location" value="">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" value="" id="othersCheckbox">
+                    <label class="form-check-label" for="othersCheckbox">
+                        Others ( Only EHCM and UNCM )
+                    </label>
+                </div>
 
-        <div class="mb-3">
-            <label for="download" class="form-label">Download</label>
-            <input type="number" step="0.01" class="form-control" id="download" name="download"></input>
-        </div>
-        @error('download')
-            <div class="my-error">
-                <span class="text-danger">{{ $message }}</span>
+                <input type="hidden" id="location" name="location" value="">
             </div>
-        @enderror
 
-        <div class="mb-3">
-            <label for="upload" class="form-label">Upload</label>
-            <input type="number" step="0.01" class="form-control" id="upload" name="upload">
-        </div>
-        @error('upload')
-            <div class="my-error">
-                <span class="text-danger">{{ $message }}</span>
+            <div class="form-section">
+                <h2>Internet Speed</h2>
+
+                <div class="form-floating mb-3">
+                    <input type="number" step="0.01" class="form-control" id="download" name="download"
+                        placeholder="Download">
+                    <label for="download">Download (Mbps)</label>
+                </div>
+                @error('download')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+
+                <div class="form-floating mb-3">
+                    <input type="number" step="0.01" class="form-control" id="upload" name="upload"
+                        placeholder="Upload">
+                    <label for="upload">Upload (Mbps)</label>
+                </div>
+                @error('upload')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
-        @enderror
 
-        <button type="submit" class="btn btn-primary">Submit</button>
-        <a href="/daily/hotels/{{ $type }}" class="btn btn-secondary">Cancel</a>
-    </form>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/daily/hotels/{{ $type }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select {
+            height: calc(3.5rem + 2px);
+            padding: 0.5rem 0.75rem;
+        }
+
+        .form-floating {
+            position: relative;
+        }
+
+        .form-floating>.form-control {
+            height: calc(3.5rem + 2px);
+            padding: 1rem 0.75rem;
+        }
+
+        .form-floating>label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding: 1rem 0.75rem;
+            pointer-events: none;
+            border: 1px solid transparent;
+            transform-origin: 0 0;
+            transition: opacity .1s ease-in-out, transform .1s ease-in-out;
+        }
+
+        .form-floating>.form-control:focus~label,
+        .form-floating>.form-control:not(:placeholder-shown)~label {
+            opacity: .65;
+            transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-actions {
+            text-align: right;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -78,10 +164,7 @@
             var form2 = document.getElementById('form2');
             var location1 = document.getElementById('location1');
             var location2 = document.getElementById('location2');
-            var locationHidden = document.createElement('input');
-            locationHidden.type = 'hidden';
-            locationHidden.name = 'location';
-            form.appendChild(locationHidden);
+            var locationHidden = document.getElementById('location');
 
             var othersCheckbox = document.getElementById('othersCheckbox');
 
@@ -104,10 +187,4 @@
             });
         });
     </script>
-
-    <style>
-        .hidden {
-            display: none;
-        }
-    </style>
 @endsection

@@ -29,7 +29,7 @@
                     <th class="text-center"><a class="text-dark text-decoration-none"
                             href="{{ route('inprocess', array_merge(request()->all(), ['sort_by' => 'id', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}">#</a>
                     </th>
-                    <th class="text-center"><a class="text-dark text-decoration-none"
+                    <th class="col-md-1 text-center"><a class="text-dark text-decoration-none"
                             href="{{ route('inprocess', array_merge(request()->all(), ['sort_by' => 'issue', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc'])) }}">Issue</a>
                     </th>
                     <th class="col-md-3 text-center"><a class="text-dark text-decoration-none"

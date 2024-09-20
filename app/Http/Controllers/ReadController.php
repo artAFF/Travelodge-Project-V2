@@ -23,18 +23,22 @@ class ReadController extends Controller
 {
     public function __construct()
     {
+        // Require authentication for all methods in this controller
         $this->middleware('auth');
     }
 
     public function TableReportIssue(Request $request)
     {
+        // Extract query parameters
         $query = $request->input('query');
         $sort_by = $request->input('sort_by', 'id');
         $sort_order = $request->input('sort_order', 'desc');
         $user = auth()->user();
 
+        // Build query for Travelodge issues
         $ReportIssues = Travelodge::with(['category', 'department', 'assignee'])
             ->when($query, function ($q) use ($query) {
+                // Apply search filters if query is provided
                 $q->whereHas('category', function ($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%");
                 })->orWhereHas('department', function ($q) use ($query) {
@@ -43,16 +47,19 @@ class ReadController extends Controller
                     ->orWhere('hotel', 'like', "%{$query}%");
             })
             ->when($user->role !== 'admin', function ($q) use ($user) {
+                // Restrict to user's department if not admin
                 $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(10)
             ->appends(['query' => $query, 'sort_by' => $sort_by, 'sort_order' => $sort_order]);
 
+        // Get IT Support users
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');
         })->get();
 
+        // Return view with data
         return view('/reports/reportIssue', compact('ReportIssues', 'query', 'sort_by', 'sort_order', 'itSupportUsers'));
     }
 
@@ -79,7 +86,7 @@ class ReadController extends Controller
                 $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
-            ->paginate(10)
+            ->paginate(20)
             ->appends(['query' => $query, 'sort_by' => $sort_by, 'sort_order' => $sort_order]);
 
         $itSupportUsers = User::whereHas('department', function ($query) {
@@ -118,12 +125,14 @@ class ReadController extends Controller
 
     public function preview($id)
     {
+        // Show preview of a specific issue
         $report = Travelodge::findOrFail($id);
         return view('/reports/preview-issue', compact('report'));
     }
 
     public function filterDate(Request $request)
     {
+        // Filter issues by date range
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
@@ -133,9 +142,9 @@ class ReadController extends Controller
 
         return view('/reports/inprocess', compact('in_process'));
     }
-
     function NumberOfCurrentStatus()
     {
+        // Calculate number of issues by status for each department
         $departments = [];
         $departmentLinks = [];
         $departmentRecords = Department::all();
@@ -169,6 +178,7 @@ class ReadController extends Controller
 
     public function itsup_status($department_id)
     {
+        // Show in-process issues for a specific department
         $user = auth()->user();
         if ($user->role !== 'admin' && $user->department_id != $department_id) {
             abort(403, 'Unauthorized action.');
@@ -182,19 +192,23 @@ class ReadController extends Controller
 
     public function TableReportAll(Request $request, $type)
     {
+        // Generate reports for different types of data (guests, switches, servers, net speeds)
         $prefix = $this->getPrefixFromType($type);
         $source = $type;
 
+        // Get page numbers for pagination
         $pageGuests = $request->input('pageGuests', 1);
         $pageSwitchs = $request->input('pageSwitchs', 1);
         $pageServers = $request->input('pageServers', 1);
         $pageNetSpeeds = $request->input('pageNetSpeeds', 1);
 
+        // Fetch data for each type
         $ReportGuests = DB::table("{$prefix}guests")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageGuests', $pageGuests);
         $ReportSwitchs = DB::table("{$prefix}switches")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageSwitchs', $pageSwitchs);
         $ReportServers = DB::table("{$prefix}servers")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageServers', $pageServers);
         $ReportNetSpeeds = DB::table("{$prefix}nets")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageNetSpeeds', $pageNetSpeeds);
 
+        // Handle AJAX requests
         if ($request->ajax()) {
             return response()->json([
                 'ReportGuests' => view('partials.report_guests', compact('ReportGuests', 'source'))->render(),
@@ -204,11 +218,13 @@ class ReadController extends Controller
             ]);
         }
 
+        // Return view for non-AJAX requests
         return view("daily.hotels.{$source}", compact('ReportGuests', 'ReportSwitchs', 'ReportServers', 'ReportNetSpeeds', 'source'));
     }
 
     private function getPrefixFromType($type)
     {
+        // Get database prefix based on hotel type
         switch ($type) {
             case 'ehcm':
                 return 'Ehcm_';

@@ -14,22 +14,27 @@ class PdfController extends Controller
 {
     public function __construct()
     {
+        // Require authentication for all methods in this controller
         $this->middleware('auth');
     }
 
     public function showFilterForm()
     {
+        // Fetch all categories, departments, and define hotels
         $categories = Category::all();
         $departments = Department::all();
         $hotels = ['TLCMN', 'EHCM', 'UNCM'];
 
+        // Return the filter form view with the data
         return view('/filter/filter-form', compact('categories', 'departments', 'hotels'));
     }
 
     public function filterData(Request $request)
     {
+        // Start building the query
         $query = Travelodge::query();
 
+        // Apply filters based on user input
         if ($request->category_id && $request->category_id != 'All') {
             $query->where('category_id', $request->category_id);
         }
@@ -46,6 +51,7 @@ class PdfController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Apply date range filter
         if ($request->start_date) {
             if ($request->end_date) {
                 $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
@@ -54,8 +60,10 @@ class PdfController extends Controller
             }
         }
 
+        // Execute the query
         $issues = $query->get();
 
+        // Store filter criteria in session
         session([
             'filter_category_id' => $request->category_id,
             'filter_department_id' => $request->department_id,
@@ -65,11 +73,13 @@ class PdfController extends Controller
             'filter_end_date' => $request->end_date,
         ]);
 
+        // Return the filtered data view
         return view('/filter/filtered-data', compact('issues'));
     }
 
     public function downloadPDF(Request $request)
     {
+        // Decode JSON data from request
         $issuesJson = $request->issues;
         if (empty($issuesJson)) {
             return redirect()->back()->with('error', 'No data available for download.');
@@ -80,9 +90,11 @@ class PdfController extends Controller
             return redirect()->back()->with('error', 'Invalid data format.');
         }
 
+        // Format dates
         $start_date = session('filter_start_date') ? \Carbon\Carbon::parse(session('filter_start_date'))->format('d/m/y') : 'N/A';
         $end_date = session('filter_end_date') ? \Carbon\Carbon::parse(session('filter_end_date'))->format('d/m/y') : 'N/A';
 
+        // Prepare data for PDF
         $data = [
             'issues' => $issues,
             'start_date' => $start_date,
@@ -93,26 +105,32 @@ class PdfController extends Controller
             'status' => session('filter_status') === '0' ? 'In-progress' : (session('filter_status') === '1' ? 'Done' : 'All'),
         ];
 
+        // Generate PDF
         $pdf = FacadePdf::loadView('/filter/pdf-report', $data);
 
+        // Download PDF
         return $pdf->download('IT_Support_Report.pdf');
     }
 
     public function search(Request $request)
     {
+        // Extract search parameters from request
         $query = $request->input('query', '');
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $hotel = $request->input('hotel', 'tlcmn');
         $category = $request->input('category', 'all');
 
+        // Get database prefix based on hotel
         $prefix = $this->getPrefixFromHotel($hotel);
 
+        // Fetch data based on category
         $guests = ($category == 'all' || $category == 'guest') ? $this->getGuests($prefix, $start_date, $end_date, $query, true) : collect();
         $netSpeeds = ($category == 'all' || $category == 'internet') ? $this->getNetSpeeds($prefix, $start_date, $end_date, $query, true) : collect();
         $servers = ($category == 'all' || $category == 'server') ? $this->getServers($prefix, $start_date, $end_date, $query, true) : collect();
         $switches = ($category == 'all' || $category == 'switch') ? $this->getSwitches($prefix, $start_date, $end_date, $query, true) : collect();
 
+        // Prepare search results
         $searchResults = [
             'guests' => $guests,
             'netSpeeds' => $netSpeeds,
@@ -125,30 +143,36 @@ class PdfController extends Controller
             'hotel' => $hotel
         ];
 
+        // Store search results in session
         $request->session()->put('searchResults', $searchResults);
 
+        // Return search results view
         return view('/daily/search', $searchResults);
     }
 
     public function downloadPdfDaily(Request $request)
     {
+        // Retrieve search parameters from session
         $searchParams = $request->session()->get('searchResults');
 
         if (!$searchParams) {
             return redirect()->route('search')->with('error', 'No search results found. Please perform a search first.');
         }
 
+        // Extract search parameters
         $prefix = $this->getPrefixFromHotel($searchParams['hotel']);
         $category = $searchParams['category'] ?? 'all';
         $start_date = $searchParams['start_date'];
         $end_date = $searchParams['end_date'];
         $query = $searchParams['query'];
 
+        // Fetch data based on category (without pagination)
         $guests = ($category == 'all' || $category == 'guest') ? $this->getGuests($prefix, $start_date, $end_date, $query, false) : collect();
         $netSpeeds = ($category == 'all' || $category == 'internet') ? $this->getNetSpeeds($prefix, $start_date, $end_date, $query, false) : collect();
         $servers = ($category == 'all' || $category == 'server') ? $this->getServers($prefix, $start_date, $end_date, $query, false) : collect();
         $switches = ($category == 'all' || $category == 'switch') ? $this->getSwitches($prefix, $start_date, $end_date, $query, false) : collect();
 
+        // Prepare data for PDF
         $pdfData = [
             'guests' => $guests,
             'netSpeeds' => $netSpeeds,
@@ -160,11 +184,14 @@ class PdfController extends Controller
             'hotel' => $searchParams['hotel']
         ];
 
+        // Generate PDF
         $pdf = FacadePdf::loadView('/daily/pdf-daily', $pdfData);
 
+        // Download PDF
         return $pdf->download('daily_report.pdf');
     }
 
+    // Helper methods for fetching data from different tables
     private function getGuests($prefix, $start_date, $end_date, $query, $paginate = true)
     {
         $query = DB::table("{$prefix}guests")
@@ -231,6 +258,7 @@ class PdfController extends Controller
         return $paginate ? $query->paginate(10, ['*'], 'switches_page') : $query->get();
     }
 
+    // Return database prefix based on hotel code
     private function getPrefixFromHotel($hotel)
     {
         switch ($hotel) {
