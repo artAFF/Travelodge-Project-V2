@@ -288,4 +288,52 @@ class ChartController extends Controller
             return round(($value / $total) * 100, 2);
         }, $data);
     }
+
+    public function getCompareHotelDataByDate($view, $filterType, Request $request)
+    {
+        $hotel = $request->query('hotel');
+        $query = Travelodge::where('hotel', $hotel);
+
+        // Apply date filters for current data
+        if ($filterType === 'custom') {
+            $startDate = $request->query('start');
+            $endDate = $request->query('end');
+            if ($startDate && $endDate) {
+                $startDateTime = Carbon::parse($startDate)->startOfDay();
+                $endDateTime = Carbon::parse($endDate)->endOfDay();
+                $query->whereBetween('created_at', [$startDateTime, $endDateTime]);
+            }
+        } else if ($filterType !== 'all_time') {
+            $this->applyDateFilter($query, $filterType);
+        }
+
+        // Get current data
+        $currentData = $this->getDataByView($query, $view);
+
+        // Get compare data if provided
+        $compareData = null;
+        $compareStartDate = $request->query('compareStart');
+        $compareEndDate = $request->query('compareEnd');
+        if ($compareStartDate && $compareEndDate) {
+            $compareQuery = Travelodge::where('hotel', $hotel);
+            $compareStartDateTime = Carbon::parse($compareStartDate)->startOfDay();
+            $compareEndDateTime = Carbon::parse($compareEndDate)->endOfDay();
+            $compareQuery->whereBetween('created_at', [$compareStartDateTime, $compareEndDateTime]);
+            $compareData = $this->getDataByView($compareQuery, $view);
+        }
+
+        return response()->json([
+            'currentData' => $currentData,
+            'compareData' => $compareData
+        ]);
+    }
+
+    private function getDataByView($query, $view)
+    {
+        if ($view === 'category') {
+            return $this->getCategoryDataFromQuery($query);
+        } else {
+            return $this->getDepartmentDataFromQuery($query);
+        }
+    }
 }

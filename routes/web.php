@@ -51,6 +51,7 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     Route::get('/dashboards/issue-preview', function () {
         return view('dashboards.issue_preview');
     })->name('issue.preview');
+    Route::get('/api/hotel-data-compare/{view}/{filterType}', [ChartController::class, 'getCompareHotelDataByDate']);
 
     // PDF Generation Routes
     Route::get('/filter/filter-form', [PdfController::class, 'showFilterForm'])->name('filter.form');

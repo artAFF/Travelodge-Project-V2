@@ -7,7 +7,8 @@
 
     <style>
         #viewSelector,
-        #dateFilter {
+        #dateFilter,
+        #compareDateFilter {
             width: auto;
             min-width: 150px;
             max-width: 200px;
@@ -19,7 +20,8 @@
         }
 
         #viewSelector:focus,
-        #dateFilter:focus {
+        #dateFilter:focus,
+        #compareDateFilter:focus {
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
         }
 
@@ -52,16 +54,20 @@
 
             #viewSelector,
             #dateFilter,
-            #customDateRange {
+            #compareDateFilter,
+            #customDateRange,
+            #compareCustomDateRange {
                 margin-top: 10px;
                 margin-left: 0;
             }
 
-            #customDateRange {
+            #customDateRange,
+            #compareCustomDateRange {
                 flex-direction: column;
             }
 
-            #customDateRange input {
+            #customDateRange input,
+            #compareCustomDateRange input {
                 margin-top: 10px;
             }
         }
@@ -81,40 +87,86 @@
                     <div class="form-group mb-0 ml-3">
                         <select id="dateFilter" class="form-control">
                             <option value="all_time">All Time</option>
-                            <option value="today">Today</option>
-                            <option value="yesterday">Yesterday</option>
-                            <option value="this_week">This week</option>
-                            <option value="last_week">Last week</option>
-                            <option value="this_month">This month</option>
-                            <option value="last_month">Last month</option>
-                            <option value="last_30_days">Last 30 days</option>
-                            <option value="this_quarter">This quarter</option>
-                            <option value="last_quarter">Last quarter</option>
-                            <option value="this_year">This year</option>
-                            <option value="last_year">Last year</option>
-                            <option value="last_365_days">Last 365 days</option>
-                            <option value="custom">Custom</option>
+                            <optgroup label="Daily">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                            </optgroup>
+                            <optgroup label="Weekly">
+                                <option value="this_week">This week</option>
+                                <option value="last_week">Last week</option>
+                            </optgroup>
+                            <optgroup label="Monthly">
+                                <option value="this_month">This month</option>
+                                <option value="last_month">Last month</option>
+                                <option value="last_30_days">Last 30 days</option>
+                            </optgroup>
+                            <optgroup label="Quarterly">
+                                <option value="this_quarter">This quarter</option>
+                                <option value="last_quarter">Last quarter</option>
+                            </optgroup>
+                            <optgroup label="Yearly">
+                                <option value="this_year">This year</option>
+                                <option value="last_year">Last year</option>
+                                <option value="last_365_days">Last 365 days</option>
+                            </optgroup>
+                            <optgroup label="Custom">
+                                <option value="custom">Custom date range</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div id="customDateRange" style="display: none;">
                         <input type="date" id="startDate" class="form-control ml-3">
                         <input type="date" id="endDate" class="form-control ml-3">
                     </div>
+                    <div class="form-group mb-0 ml-3">
+                        <button id="compareBtn" class="btn btn-primary">Compare</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-6 animate__animated animate__fadeInLeft">
-                <h2 class="text-center">Bar Chart</h2>
-                <div class="chart-container" style="height: 400px; width: 100%;">
-                    <canvas id='barChart'></canvas>
-                </div>
+        <div id="compareDateRange" style="display: none;">
+            <select id="compareDateFilter" class="form-control">
+                <option value="all_time">All Time</option>
+                <optgroup label="Daily">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                </optgroup>
+                <optgroup label="Weekly">
+                    <option value="this_week">This week</option>
+                    <option value="last_week">Last week</option>
+                </optgroup>
+                <optgroup label="Monthly">
+                    <option value="this_month">This month</option>
+                    <option value="last_month">Last month</option>
+                    <option value="last_30_days">Last 30 days</option>
+                </optgroup>
+                <optgroup label="Quarterly">
+                    <option value="this_quarter">This quarter</option>
+                    <option value="last_quarter">Last quarter</option>
+                </optgroup>
+                <optgroup label="Yearly">
+                    <option value="this_year">This year</option>
+                    <option value="last_year">Last year</option>
+                    <option value="last_365_days">Last 365 days</option>
+                </optgroup>
+                <optgroup label="Custom">
+                    <option value="custom">Custom date range</option>
+                </optgroup>
+            </select>
+            <div id="compareCustomDateRange" style="display: none;">
+                <input type="date" id="compareStartDate" class="form-control ml-3">
+                <input type="date" id="compareEndDate" class="form-control ml-3">
             </div>
-            <div class="col-md-6 animate__animated animate__fadeInRight">
-                <h2 class="text-center">Pie Chart</h2>
-                <div class="chart-container" style="height: 400px; width: 100%;">
-                    <canvas id='pieChart'></canvas>
+        </div>
+
+        <div class="row">
+            <div class="row">
+                <div class="col-md-12 animate__animated animate__fadeInLeft">
+                    <h2 class="text-center">Comparison Chart</h2>
+                    <div class="chart-container" style="height: 400px; width: 100%;">
+                        <canvas id='mainChart'></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -136,34 +188,55 @@
         var categoryData = @json($category_data);
         var departmentData = @json($department_data);
         var currentView = 'category';
+        var compareMode = false;
+        var mainChart, pieChart;
 
-        var barChart, pieChart;
 
-        function updateCharts(data) {
-            updateBarChart(data);
+
+        function updateCharts(data, compareData = null) {
+            updateMainChart(data, compareData);
             updatePieChart(data);
-            updateReportCards(data);
+            updateReportCards(data, compareData);
         }
 
-        function updateBarChart(data) {
-            if (barChart) {
-                barChart.destroy();
+        function updateMainChart(data, compareData = null) {
+            if (mainChart) {
+                mainChart.destroy();
             }
 
-            var ctx = document.getElementById('barChart').getContext('2d');
-            barChart = new Chart(ctx, {
+            var ctx = document.getElementById('mainChart').getContext('2d');
+            var datasets = [{
+                type: 'bar',
+                label: currentView.charAt(0).toUpperCase() + currentView.slice(1),
+                data: data.data,
+                backgroundColor: data.backgroundColor
+            }];
+
+            if (compareData) {
+                datasets.push({
+                    type: 'line',
+                    label: 'Compare ' + currentView,
+                    data: compareData.data,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false
+                });
+            }
+
+            mainChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: data.labels,
-                    datasets: [{
-                        label: currentView.charAt(0).toUpperCase() + currentView.slice(1),
-                        data: data.data,
-                        backgroundColor: data.backgroundColor
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
                     animation: {
                         duration: 1000,
                         easing: 'easeOutQuart'
@@ -178,24 +251,49 @@
             });
         }
 
-        function updatePieChart(data) {
-            if (pieChart) {
-                pieChart.destroy();
+        function updateCharts(data, compareData = null) {
+            updateMainChart(data, compareData);
+            updateReportCards(data, compareData);
+        }
+
+        function updateMainChart(data, compareData = null) {
+            if (mainChart) {
+                mainChart.destroy();
             }
 
-            var ctx = document.getElementById('pieChart').getContext('2d');
-            pieChart = new Chart(ctx, {
-                type: 'pie',
+            var ctx = document.getElementById('mainChart').getContext('2d');
+            var datasets = [{
+                type: 'bar',
+                label: currentView.charAt(0).toUpperCase() + currentView.slice(1),
+                data: data.data,
+                backgroundColor: data.backgroundColor
+            }];
+
+            if (compareData) {
+                datasets.push({
+                    type: 'line',
+                    label: 'Compare ' + currentView,
+                    data: compareData.data,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false
+                });
+            }
+
+            mainChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
                     labels: data.labels,
-                    datasets: [{
-                        data: data.data,
-                        backgroundColor: data.backgroundColor
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
                     animation: {
                         duration: 1000,
                         easing: 'easeOutQuart'
@@ -210,13 +308,24 @@
             });
         }
 
-        function updateReportCards(data) {
+        function updateReportCards(data, compareData = null) {
             var reportCards = document.getElementById('reportCards');
             reportCards.innerHTML = '';
 
             data.labels.forEach((label, index) => {
                 var card = document.createElement('div');
                 card.className = 'col';
+                var compareHtml = '';
+                if (compareData) {
+                    var diff = data.data[index] - compareData.data[index];
+                    var diffClass = diff >= 0 ? 'text-success' : 'text-danger';
+                    var diffSymbol = diff >= 0 ? '▲' : '▼';
+                    compareHtml = `
+                        <p class="card-text ${diffClass}">
+                            ${diffSymbol} ${Math.abs(diff)} (${compareData.data[index]} in compare period)
+                        </p>
+                    `;
+                }
                 card.innerHTML = `
                     <div class="card h-100">
                         <div class="card-body">
@@ -225,6 +334,7 @@
                                 <span class="fs-4 fw-bold text-primary">${data.data[index]}</span>
                                 reports
                             </p>
+                            ${compareHtml}
                         </div>
                     </div>
                 `;
@@ -243,26 +353,9 @@
             });
         }
 
-        function showDetailTable(label) {
-            const hotelCode = '{{ $hotel_code }}';
-            const dateFilter = document.getElementById('dateFilter').value;
-            let dateParams = '';
-
-            if (dateFilter === 'custom') {
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                dateParams = `&start=${startDate}&end=${endDate}`;
-            } else {
-                dateParams = `&dateFilter=${dateFilter}`;
-            }
-
-            window.location.href =
-                `/dashboards/issue-preview?type=${currentView}&label=${encodeURIComponent(label)}&hotel=${encodeURIComponent(hotelCode)}${dateParams}`;
-        }
-
         document.getElementById('viewSelector').addEventListener('change', function() {
             currentView = this.value;
-            updateChartsWithDateFilter(document.getElementById('dateFilter').value);
+            updateChartsWithDateFilter();
         });
 
         document.getElementById('dateFilter').addEventListener('change', function() {
@@ -270,33 +363,64 @@
                 document.getElementById('customDateRange').style.display = 'flex';
             } else {
                 document.getElementById('customDateRange').style.display = 'none';
-                updateChartsWithDateFilter(this.value);
+                updateChartsWithDateFilter();
             }
         });
 
-        document.getElementById('startDate').addEventListener('change', updateChartsWithCustomDate);
-        document.getElementById('endDate').addEventListener('change', updateChartsWithCustomDate);
+        document.getElementById('compareDateFilter').addEventListener('change', function() {
+            if (this.value === 'custom') {
+                document.getElementById('compareCustomDateRange').style.display = 'flex';
+            } else {
+                document.getElementById('compareCustomDateRange').style.display = 'none';
+                updateChartsWithDateFilter();
+            }
+        });
 
-        function updateChartsWithDateFilter(filterType) {
-            if (filterType === 'all_time') {
+        document.getElementById('compareBtn').addEventListener('click', function() {
+            compareMode = !compareMode;
+            if (compareMode) {
+                this.textContent = 'Cancel Compare';
+                document.getElementById('compareDateRange').style.display = 'flex';
+            } else {
+                this.textContent = 'Compare';
+                document.getElementById('compareDateRange').style.display = 'none';
+                updateChartsWithDateFilter();
+            }
+        });
+
+        function updateChartsWithDateFilter() {
+            const filterType = document.getElementById('dateFilter').value;
+            const compareFilterType = document.getElementById('compareDateFilter').value;
+
+            if (filterType === 'all_time' && !compareMode) {
                 updateCharts(currentView === 'category' ? categoryData : departmentData);
             } else {
-                fetch(`/api/hotel-data/${currentView}/${filterType}?hotel={{ $hotel_code }}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        updateCharts(data);
-                    });
-            }
-        }
+                let url = `/api/hotel-data/${currentView}/${filterType}?hotel={{ $hotel_code }}`;
+                if (filterType === 'custom') {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    url += `&start=${startDate}&end=${endDate}`;
+                }
 
-        function updateChartsWithCustomDate() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            if (startDate && endDate) {
-                fetch(`/api/hotel-data/${currentView}/custom?hotel={{ $hotel_code }}&start=${startDate}&end=${endDate}`)
+                fetch(url)
                     .then(response => response.json())
                     .then(data => {
-                        updateCharts(data);
+                        if (compareMode) {
+                            let compareUrl =
+                                `/api/hotel-data/${currentView}/${compareFilterType}?hotel={{ $hotel_code }}`;
+                            if (compareFilterType === 'custom') {
+                                const compareStartDate = document.getElementById('compareStartDate').value;
+                                const compareEndDate = document.getElementById('compareEndDate').value;
+                                compareUrl += `&start=${compareStartDate}&end=${compareEndDate}`;
+                            }
+                            fetch(compareUrl)
+                                .then(response => response.json())
+                                .then(compareData => {
+                                    updateCharts(data, compareData);
+                                });
+                        } else {
+                            updateCharts(data);
+                        }
                     });
             }
         }
