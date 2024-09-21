@@ -16,48 +16,6 @@ class ChartController extends Controller
         $this->middleware('auth');
     }
 
-    public function HotelChart(Request $request)
-    {
-        // Define hotel names and codes
-        $hotels = [
-            'TLCMN' => 'TLCMN',
-            'EHCM' => 'EHCM',
-            'UNCM' => 'UNCM '
-        ];
-        $data = [];
-        $colors = ['#E74C3C', '#2CA02C', '#3498DB'];
-        $latestReports = [];
-
-        // Loop through each hotel to gather data
-        foreach ($hotels as $hotel => $hotelLabel) {
-            // Count the number of entries for each hotel
-            $count = Travelodge::where('hotel', $hotel)->count();
-            array_push($data, $count);
-
-            // Get the latest 5 reports for each hotel
-            $latestHotelReports = Travelodge::where('hotel', $hotel)
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get(['id', 'detail', 'created_at']);
-            $latestReports[$hotelLabel] = $latestHotelReports;
-        }
-
-        // Calculate percentages of the data
-        $percentages = $this->calculatePercentages($data);
-        // Create dataset for the chart
-        $datasets = [
-            [
-                'label' => 'Hotels',
-                'data' => $data,
-                'backgroundColor' => $colors
-            ]
-        ];
-        $hotels = array_values($hotels);
-
-        // Send data to the view
-        return view('/home', compact('datasets', 'hotels', 'percentages', 'latestReports'));
-    }
-
     public function HotelDashboard(Request $request, $hotel)
     {
         // Define hotel names
@@ -212,31 +170,6 @@ class ChartController extends Controller
                 $query->where('created_at', '>=', Carbon::now()->subDays(365));
                 break;
         }
-    }
-
-    public function getHotelDataCompare($view, $filterType, $compareFilterType, Request $request)
-    {
-        $hotel = $request->query('hotel');
-        $query = Travelodge::where('hotel', $hotel);
-        $compareQuery = Travelodge::where('hotel', $hotel);
-
-        $this->applyDateFilter($query, $filterType);
-        $this->applyDateFilter($compareQuery, $compareFilterType);
-
-        if ($view === 'category') {
-            $currentData = $this->getCategoryDataFromQuery($query);
-            $compareData = $this->getCategoryDataFromQuery($compareQuery);
-        } else {
-            $currentData = $this->getDepartmentDataFromQuery($query);
-            $compareData = $this->getDepartmentDataFromQuery($compareQuery);
-        }
-
-        return response()->json([
-            'labels' => $currentData['labels'],
-            'currentData' => $currentData['data'],
-            'compareData' => $compareData['data'],
-            'backgroundColor' => $currentData['backgroundColor']
-        ]);
     }
 
     private function getCategoryData($hotel)
