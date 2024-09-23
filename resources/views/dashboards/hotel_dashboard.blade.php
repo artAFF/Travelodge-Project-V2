@@ -191,7 +191,31 @@
         var compareMode = false;
         var mainChart, pieChart;
 
+        function showDetailTable(label) {
+            const hotel = '{{ $hotel_code }}';
+            const dateFilter = document.getElementById('dateFilter').value;
+            let url =
+                `/dashboards/issue-preview?type=${currentView}&label=${encodeURIComponent(label)}&hotel=${hotel}&dateFilter=${dateFilter}`;
 
+            if (dateFilter === 'custom') {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                url += `&start=${startDate}&end=${endDate}`;
+            }
+
+            if (!compareMode) {
+                window.location.href = url;
+            } else {
+
+                fetch(`/api/issues/${currentView}/${label}?hotel=${hotel}&dateFilter=${dateFilter}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
 
         function updateCharts(data, compareData = null) {
             updateMainChart(data, compareData);
