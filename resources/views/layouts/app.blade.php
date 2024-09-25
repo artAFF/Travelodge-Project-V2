@@ -306,48 +306,54 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-                    const dropdownToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            const dropdownToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
 
-                    dropdownToggles.forEach(toggle => {
-                        const collapseId = toggle.getAttribute('href');
-                        const collapse = document.querySelector(collapseId);
+            dropdownToggles.forEach(toggle => {
+                const collapseId = toggle.getAttribute('href');
+                const collapse = document.querySelector(collapseId);
 
-                        toggle.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const icon = toggle.querySelector('.bi-chevron-right');
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const icon = toggle.querySelector('.bi-chevron-right');
 
-                            if (collapse.classList.contains('show')) {
-                                collapse.style.maxHeight = collapse.scrollHeight + "px";
-                                setTimeout(() => {
-                                    collapse.style.maxHeight = "0px";
-                                }, 10);
-                                collapse.classList.remove('show');
-                                if (icon) icon.style.transform = 'rotate(0deg)';
-                            } else {
-                                dropdownToggles.forEach(otherToggle => {
-                                    if (otherToggle !== toggle) {
-                                        const targetId = otherToggle.getAttribute('href');
-                                        const targetCollapse = document.querySelector(targetId);
-                                        if (targetCollapse.classList.contains('show')) {
-                                            targetCollapse.style.maxHeight = "0px";
-                                            targetCollapse.classList.remove('show');
-                                            const otherIcon = otherToggle.querySelector(
-                                                '.bi-chevron-right');
-                                            if (otherIcon) otherIcon.style.transform =
-                                                'rotate(0deg)';
-                                        }
-                                    }
-                                });
-                                collapse.classList.add('show');
-                                collapse.style.maxHeight = collapse.scrollHeight + "px";
-                                if (icon) icon.style.transform = 'rotate(90deg)';
+                    if (collapse.classList.contains('show')) {
+                        collapse.style.maxHeight = collapse.scrollHeight + "px";
+                        setTimeout(() => {
+                            collapse.style.maxHeight = "0px";
+                        }, 10);
+                        collapse.classList.remove('show');
+                        if (icon) icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        dropdownToggles.forEach(otherToggle => {
+                            if (otherToggle !== toggle) {
+                                const targetId = otherToggle.getAttribute('href');
+                                const targetCollapse = document.querySelector(targetId);
+                                if (targetCollapse.classList.contains('show')) {
+                                    targetCollapse.style.maxHeight = "0px";
+                                    targetCollapse.classList.remove('show');
+                                    const otherIcon = otherToggle.querySelector(
+                                        '.bi-chevron-right');
+                                    if (otherIcon) otherIcon.style.transform =
+                                        'rotate(0deg)';
+                                }
                             }
                         });
-                    });
+                        collapse.classList.add('show');
+                        collapse.style.maxHeight = collapse.scrollHeight + "px";
+                        if (icon) icon.style.transform = 'rotate(90deg)';
+                    }
+                });
+            });
 
-                    // Logout functionality
-                    const logoutForm = document.getElementById('logout-form');
-                    const logoutLink = document.querySelector('a[href="{{ route('logout') }}"]');
+            // Logout functionality
+            const logoutForm = document.getElementById('logout-form');
+            const logoutLink = document.querySelector('a[href="{{ route('logout') }}"]');
 
-                    if (logoutLink) {
-                        logoutLink.addEventListener('click', function(e) {
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logoutForm.submit();
+                });
+            }
+        });
+    </script>
