@@ -42,7 +42,7 @@
                             <tr class="animate__animated animate__fadeInUp"
                                 style="animation-delay: {{ $loop->index * 0.05 }}s">
                                 <td>{{ $itsup_status->id ?? 'N/A' }}</td>
-                                <td>{{ $itsup_status->issue ?? 'N/A' }}</td>
+                                <td>{{ $itsup_status->category->name ?? 'N/A' }}</td>
                                 <td>{{ $itsup_status->detail ?? 'N/A' }}</td>
                                 <td>{{ $itsup_status->department->name ?? 'N/A' }}</td>
                                 <td>{{ $itsup_status->hotel ?? 'N/A' }}</td>

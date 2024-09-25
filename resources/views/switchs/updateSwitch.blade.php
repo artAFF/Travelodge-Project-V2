@@ -7,7 +7,7 @@
             @csrf
 
             <div class="form-section">
-                <h2>Location Information</h2>
+                <h2>Switch Checking</h2>
 
                 @php
                     $isOthers = in_array($ReportSwitchs->location, [

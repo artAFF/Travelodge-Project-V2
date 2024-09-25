@@ -7,7 +7,7 @@
             @csrf
 
             <div class="form-section">
-                <h2>Hotel Information</h2>
+                <h2>Internet Checking</h2>
 
                 <div class="form-group mb-3">
                     <label for="hotel" class="form-label"><b>Hotel</b></label>

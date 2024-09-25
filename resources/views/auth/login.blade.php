@@ -1,4 +1,4 @@
-{{-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -115,9 +115,9 @@
     </div>
 </body>
 
-</html> --}}
+</html>
 
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -223,4 +223,4 @@
     </div>
 </body>
 
-</html>
+</html> --}}

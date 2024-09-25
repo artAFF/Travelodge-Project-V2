@@ -7,7 +7,7 @@
             @csrf
 
             <div class="form-section">
-                <h2>Location Information</h2>
+                <h2>Internet Checking</h2>
 
                 <div class="form-group mb-3">
                     <label for="location" class="form-label">Location</label>
