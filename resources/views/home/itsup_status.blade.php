@@ -7,22 +7,6 @@
             <h1 class="text-center mb-4 animate__animated animate__fadeInDown">{{ $department->name ?? 'N/A' }} Issues in the
                 Process</h1>
 
-            <form method="GET" action="/filter" class="mb-4 animate__animated animate__fadeIn">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label>Start Date:</label>
-                        <input type="date" name="start_date" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <label>End Date:</label>
-                        <input type="date" name="end_date" class="form-control">
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    </div>
-                </div>
-            </form>
-
             <div class="table-responsive animate__animated animate__fadeIn">
                 <table class="table table-striped table-hover">
                     <thead class="bg-primary text-white">
