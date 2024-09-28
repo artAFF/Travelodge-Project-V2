@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Add Issue')
+@section('title', 'Update Internet Speed Check')
 
 @section('content')
     <div class="container">
