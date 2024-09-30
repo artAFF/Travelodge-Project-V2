@@ -15,7 +15,7 @@
                     No Remarks
                 @endif
             </p>
-            <p><strong>Hotel:</strong> {{ $report->hotel }}</p>
+            <p><strong>Hotel:</strong> {{ $report->hotel->hotel_code ?? 'N/A' }}</p>
             <p><strong>Status:</strong> {{ $report->status === 0 ? 'In Progress' : 'Done' }}</p>
         </div>
     </div>

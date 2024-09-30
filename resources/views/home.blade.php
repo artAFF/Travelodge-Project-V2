@@ -91,7 +91,7 @@
         var pieCtx = document.getElementById('pieChart').getContext('2d');
 
         var chartData = {
-            labels: <?php echo json_encode($hotels); ?>,
+            labels: <?php echo json_encode($sortedHotels); ?>,
             datasets: <?php echo json_encode($datasets); ?>
         };
 
@@ -124,7 +124,7 @@
         var pieChart = new Chart(pieCtx, {
             type: 'pie',
             data: {
-                labels: <?php echo json_encode($hotels); ?>,
+                labels: <?php echo json_encode($sortedHotels); ?>,
                 datasets: [{
                     data: <?php echo json_encode($percentages); ?>,
                     backgroundColor: <?php echo json_encode($datasets[0]['backgroundColor']); ?>

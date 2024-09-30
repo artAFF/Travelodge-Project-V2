@@ -34,12 +34,29 @@
             align-items: center;
             font-size: 0.95rem;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .nav-link:hover {
-            background-color: var(--primary-color);
             color: white;
             transform: translateX(5px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #3498db, #2ecc71, #9b59b6);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: translateX(0);
         }
 
         .nav-link.active {
@@ -54,6 +71,15 @@
 
         .sidebar-submenu {
             padding-left: 1rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+        }
+
+        .sidebar-submenu.show {
+            max-height: 500px;
+            /* ปรับตามความเหมาะสม */
+            transition: max-height 0.5s ease-in;
         }
 
         .sidebar-submenu .nav-link {
@@ -122,6 +148,26 @@
                 padding: 1rem;
             }
         }
+
+        .dashboard-title {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-title:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 
@@ -133,7 +179,7 @@
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
                     <a href="/"
                         class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <span class="fs-5 d-none d-sm-inline">IT Support Dashboard</span>
+                        <span class="dashboard-title">IT Support System</span>
                     </a>
                     @auth
                         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
@@ -164,7 +210,8 @@
                                         <span class="ms-1 d-none d-sm-inline">Daily Checklist</span>
                                         <i class="bi bi-chevron-right ms-auto px-2"></i>
                                     </a>
-                                    <ul class="collapse nav flex-column ms-1" id="submenu2" data-bs-parent="#menu">
+                                    <ul class="collapse nav flex-column ms-1 sidebar-submenu" id="submenu2"
+                                        data-bs-parent="#menu">
                                         <li class="w-100">
                                             <a href="/daily/search" class="nav-link px-0">
                                                 <span class="d-none d-sm-inline px-3">Search Daily</span>
@@ -193,7 +240,8 @@
                                         <span class="ms-1 d-none d-sm-inline">Structure Settings</span>
                                         <i class="bi bi-chevron-right ms-auto px-2"></i>
                                     </a>
-                                    <ul class="collapse nav flex-column ms-1" id="submenu3" data-bs-parent="#menu">
+                                    <ul class="collapse nav flex-column ms-1 sidebar-submenu" id="submenu3"
+                                        data-bs-parent="#menu">
                                         <li class="w-100">
                                             <a href="{{ route('structure.buildings') }}" class="nav-link px-0">
                                                 <span class="d-none d-sm-inline px-3">Buildings</span>
@@ -226,7 +274,8 @@
                                     </span>
                                     <i class="bi bi-chevron-right ms-auto"></i>
                                 </a>
-                                <ul class="collapse nav flex-column ms-1" id="userSubmenu" data-bs-parent="#menu">
+                                <ul class="collapse nav flex-column ms-1 sidebar-submenu" id="userSubmenu"
+                                    data-bs-parent="#menu">
                                     <li class="w-100">
                                         <a href="{{ route('logout') }}" class="nav-link px-0"
                                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -263,29 +312,35 @@
                 const collapseId = toggle.getAttribute('href');
                 const collapse = document.querySelector(collapseId);
 
-                collapse.addEventListener('show.bs.collapse', function() {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
                     const icon = toggle.querySelector('.bi-chevron-right');
-                    if (icon) {
-                        icon.style.transform = 'rotate(90deg)';
-                    }
 
-                    dropdownToggles.forEach(otherToggle => {
-                        if (otherToggle !== toggle) {
-                            const targetId = otherToggle.getAttribute('href');
-                            const targetCollapse = document.querySelector(targetId);
-                            const bsCollapse = bootstrap.Collapse.getInstance(
-                                targetCollapse);
-                            if (bsCollapse && bsCollapse._isShown()) {
-                                bsCollapse.hide();
+                    if (collapse.classList.contains('show')) {
+                        collapse.style.maxHeight = collapse.scrollHeight + "px";
+                        setTimeout(() => {
+                            collapse.style.maxHeight = "0px";
+                        }, 10);
+                        collapse.classList.remove('show');
+                        if (icon) icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        dropdownToggles.forEach(otherToggle => {
+                            if (otherToggle !== toggle) {
+                                const targetId = otherToggle.getAttribute('href');
+                                const targetCollapse = document.querySelector(targetId);
+                                if (targetCollapse.classList.contains('show')) {
+                                    targetCollapse.style.maxHeight = "0px";
+                                    targetCollapse.classList.remove('show');
+                                    const otherIcon = otherToggle.querySelector(
+                                        '.bi-chevron-right');
+                                    if (otherIcon) otherIcon.style.transform =
+                                        'rotate(0deg)';
+                                }
                             }
-                        }
-                    });
-                });
-
-                collapse.addEventListener('hide.bs.collapse', function() {
-                    const icon = toggle.querySelector('.bi-chevron-right');
-                    if (icon) {
-                        icon.style.transform = 'rotate(0deg)';
+                        });
+                        collapse.classList.add('show');
+                        collapse.style.maxHeight = collapse.scrollHeight + "px";
+                        if (icon) icon.style.transform = 'rotate(90deg)';
                     }
                 });
             });

@@ -30,10 +30,11 @@
 
                     <div class="col-md-6">
                         <label for="hotel" class="form-label">Hotel</label>
-                        <select name="hotel" id="hotel" class="form-select">
-                            <option value="All">All</option>
+                        <select name="hotel_id" id="hotel" class="form-select">
+                            <option value="">All</option>
                             @foreach ($hotels as $hotel)
-                                <option value="{{ $hotel }}">{{ $hotel }}</option>
+                                <option value="{{ $hotel->id }}">{{ $hotel->hotel_code }} - {{ $hotel->hotel_full_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>

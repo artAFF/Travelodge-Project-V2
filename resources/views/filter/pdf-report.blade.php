@@ -107,7 +107,7 @@
                     <td>{{ $issue['category']['name'] ?? 'N/A' }}</td>
                     <td>{{ $issue['detail'] ?? 'N/A' }}</td>
                     <td>{{ $issue['department']['name'] ?? 'N/A' }}</td>
-                    <td>{{ $issue['hotel'] ?? 'N/A' }}</td>
+                    <td>{{ $issue['hotel']['hotel_code'] ?? 'N/A' }}</td>
                     <td>{{ $issue['status'] === 0 ? 'In-progress' : 'Done' }}</td>
                     <td>{{ isset($issue['created_at']) ? \Carbon\Carbon::parse($issue['created_at'])->format('d/m/Y H:i:s') : 'N/A' }}
                     </td>

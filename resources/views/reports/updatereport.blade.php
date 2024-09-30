@@ -63,9 +63,12 @@
         <div class="mb-3">
             <label for="hotel" class="form-label">Hotel</label>
             <select class="form-select" id="hotel" name="hotel">
-                <option value="TLCMN" {{ $ReportIssues->hotel == 'TLCMN' ? 'selected' : '' }}>TLCMN</option>
-                <option value="EHCM" {{ $ReportIssues->hotel == 'EHCM' ? 'selected' : '' }}>EHCM</option>
-                <option value="UNCM" {{ $ReportIssues->hotel == 'UNCM' ? 'selected' : '' }}>UNCM</option>
+                @foreach ($hotels as $hotel)
+                    <option value="{{ $hotel->hotel_code }}"
+                        {{ $ReportIssues->hotel == $hotel->hotel_code ? 'selected' : '' }}>
+                        {{ $hotel->hotel_code }}
+                    </option>
+                @endforeach
             </select>
         </div>
         @error('hotel')

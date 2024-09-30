@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\GuestRoom;
+use App\Models\Hotel;
 use App\Models\NetSpeed;
 use App\Models\ServerRoom;
 use App\Models\SwitchRoom;
@@ -29,37 +30,34 @@ class ReadController extends Controller
 
     public function TableReportIssue(Request $request)
     {
-        // Extract query parameters
         $query = $request->input('query');
         $sort_by = $request->input('sort_by', 'id');
         $sort_order = $request->input('sort_order', 'desc');
         $user = auth()->user();
 
-        // Build query for Travelodge issues
-        $ReportIssues = Travelodge::with(['category', 'department', 'assignee'])
+        $ReportIssues = Travelodge::with(['category', 'department', 'assignee', 'hotel'])
             ->when($query, function ($q) use ($query) {
-                // Apply search filters if query is provided
                 $q->whereHas('category', function ($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%");
                 })->orWhereHas('department', function ($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%");
                 })->orWhere('detail', 'like', "%{$query}%")
-                    ->orWhere('hotel', 'like', "%{$query}%");
+                    ->orWhereHas('hotel', function ($q) use ($query) {
+                        $q->where('hotel_code', 'like', "%{$query}%")
+                            ->orWhere('hotel_full_name', 'like', "%{$query}%");
+                    });
             })
             ->when($user->role !== 'admin', function ($q) use ($user) {
-                // Restrict to user's department if not admin
                 $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(10)
             ->appends(['query' => $query, 'sort_by' => $sort_by, 'sort_order' => $sort_order]);
 
-        // Get IT Support users
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');
         })->get();
 
-        // Return view with data
         return view('/reports/reportIssue', compact('ReportIssues', 'query', 'sort_by', 'sort_order', 'itSupportUsers'));
     }
 
@@ -70,7 +68,7 @@ class ReadController extends Controller
         $sort_order = $request->input('sort_order', 'asc');
         $user = auth()->user();
 
-        $in_process = Travelodge::with(['category', 'department', 'assignee'])
+        $in_process = Travelodge::with(['category', 'department', 'assignee', 'hotel'])
             ->where('status', 0)
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQ) use ($query) {
@@ -79,7 +77,10 @@ class ReadController extends Controller
                     })->orWhereHas('department', function ($q) use ($query) {
                         $q->where('name', 'like', "%{$query}%");
                     })->orWhere('detail', 'like', "%{$query}%")
-                        ->orWhere('hotel', 'like', "%{$query}%");
+                        ->orWhereHas('hotel', function ($q) use ($query) {
+                            $q->where('hotel_code', 'like', "%{$query}%")
+                                ->orWhere('hotel_full_name', 'like', "%{$query}%");
+                        });
                 });
             })
             ->when($user->role !== 'admin', function ($q) use ($user) {

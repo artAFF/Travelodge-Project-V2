@@ -62,9 +62,9 @@
                 <div class="mb-3">
                     <label for="hotel" class="form-label">Hotel</label>
                     <select class="form-select" id="hotel" name="issues[0][hotel]">
-                        <option value="TLCMN">TLCMN</option>
-                        <option value="EHCM">EHCM</option>
-                        <option value="UNCM">UNCM</option>
+                        @foreach ($hotels as $hotel)
+                            <option value="{{ $hotel->hotel_code }}">{{ $hotel->hotel_code }}</option>
+                        @endforeach
                     </select>
                 </div>
                 @error('issues.0.hotel')

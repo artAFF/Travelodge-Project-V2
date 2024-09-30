@@ -29,7 +29,7 @@
                                 <td>{{ $itsup_status->category->name ?? 'N/A' }}</td>
                                 <td>{{ $itsup_status->detail ?? 'N/A' }}</td>
                                 <td>{{ $itsup_status->department->name ?? 'N/A' }}</td>
-                                <td>{{ $itsup_status->hotel ?? 'N/A' }}</td>
+                                <td>{{ $itsup_status->hotel->hotel_code ?? 'N/A' }}</td>
                                 <td class="text-center">
                                     @if (($itsup_status->status ?? null) === 0)
                                         <span class="badge bg-warning animate__animated animate__pulse animate__infinite">In

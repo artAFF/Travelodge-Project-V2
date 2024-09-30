@@ -27,7 +27,7 @@
                                     <td class="text-center">{{ $issue->category->name ?? 'N/A' }}</td>
                                     <td class="text-center">{{ $issue->detail }}</td>
                                     <td class="text-center">{{ $issue->department->name ?? 'N/A' }}</td>
-                                    <td class="text-center">{{ $issue->hotel }}</td>
+                                    <td class="text-center">{{ $issue->hotel->hotel_code }}</td>
                                     <td class="text-center">
                                         <span class="badge {{ $issue->status == 0 ? 'bg-warning' : 'bg-success' }}">
                                             {{ $issue->status == 0 ? 'In-progress' : 'Done' }}

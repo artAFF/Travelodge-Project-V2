@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Travelodge;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\Hotel;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Illuminate\Support\Facades\DB;
 use PDF;
@@ -23,7 +24,7 @@ class PdfController extends Controller
         // Fetch all categories, departments, and define hotels
         $categories = Category::all();
         $departments = Department::all();
-        $hotels = ['TLCMN', 'EHCM', 'UNCM'];
+        $hotels = Hotel::all();
 
         // Return the filter form view with the data
         return view('/filter/filter-form', compact('categories', 'departments', 'hotels'));
@@ -43,8 +44,8 @@ class PdfController extends Controller
             $query->where('department_id', $request->department_id);
         }
 
-        if ($request->hotel && $request->hotel != 'All') {
-            $query->where('hotel', $request->hotel);
+        if ($request->hotel_id && $request->hotel_id != 'All') {
+            $query->where('hotel_id', $request->hotel_id);
         }
 
         if ($request->status !== null && $request->status != 'All') {
@@ -101,7 +102,7 @@ class PdfController extends Controller
             'end_date' => $end_date,
             'category' => session('filter_category_id') ? Category::find(session('filter_category_id'))->name : 'All',
             'department' => session('filter_department_id') ? Department::find(session('filter_department_id'))->name : 'All',
-            'hotel' => session('filter_hotel', 'All'),
+            'hotel' => session('filter_hotel_id') ? Hotel::find(session('filter_hotel_id'))->hotel_code : 'All',
             'status' => session('filter_status') === '0' ? 'In-progress' : (session('filter_status') === '1' ? 'Done' : 'All'),
         ];
 

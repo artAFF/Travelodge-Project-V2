@@ -59,7 +59,7 @@
                         <td class="text-center">{{ $in_process1->category->name ?? 'N/A' }}</td>
                         <td class="text-center">{{ $in_process1->detail }}</td>
                         <td class="text-center">{{ $in_process1->department->name ?? 'N/A' }}</td>
-                        <td class="text-center">{{ $in_process1->hotel }}</td>
+                        <td class="text-center">{{ $in_process1->hotel->hotel_code ?? 'N/A' }}</td>
                         <td class="text-center">
                             <a href="#"
                                 class="btn status-toggle {{ $in_process1->status === 0 ? 'btn-warning' : 'btn-success' }}"

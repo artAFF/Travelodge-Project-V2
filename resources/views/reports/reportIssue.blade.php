@@ -56,7 +56,7 @@
                             <td class="text-center">{{ $reporter->category->name ?? 'N/A' }}</td>
                             <td class="text-center">{{ Str::limit($reporter->detail, 40, '...') }}</td>
                             <td class="text-center">{{ $reporter->department->name ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $reporter->hotel }}</td>
+                            <td class="text-center">{{ $reporter->hotel->hotel_code ?? 'N/A' }}</td>
                             <td class="text-center">
                                 <a href="#"
                                     class="btn status-toggle {{ $reporter->status === 0 ? 'btn-warning' : 'btn-success' }}"

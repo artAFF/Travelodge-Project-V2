@@ -10,6 +10,7 @@ use App\Models\Ehcm_net;
 use App\Models\Ehcm_server;
 use App\Models\Ehcm_switch;
 use App\Models\GuestRoom;
+use App\Models\Hotel;
 use App\Models\NetSpeed;
 use App\Models\ServerRoom;
 use App\Models\SwitchRoom;
@@ -44,11 +45,13 @@ class UpdateController extends Controller
         $ReportIssues = Travelodge::findOrFail($id);
         $categories = Category::all();
         $departments = Department::all();
+        $hotels = Hotel::all();
+
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');
         })->get();
 
-        return view('/reports/updateReport', compact('ReportIssues', 'categories', 'departments', 'itSupportUsers'));
+        return view('/reports/updateReport', compact('ReportIssues', 'categories', 'departments', 'itSupportUsers', 'hotels'));
     }
 
     public function UpdateIssue(Request $request, $id)
@@ -59,7 +62,7 @@ class UpdateController extends Controller
             'department_id' => 'required|exists:departments,id',
             'detail' => 'required',
             'remarks' => 'nullable|string',
-            'hotel' => 'required',
+            'hotel_id' => 'required|exists:hotels,id',
             'assignee' => 'nullable|exists:users,id',
             'status' => 'required|in:0,1',
         ]);
@@ -72,7 +75,7 @@ class UpdateController extends Controller
             'department_id' => $request->department_id,
             'detail' => $request->detail,
             'remarks' => $request->remarks,
-            'hotel' => $request->hotel,
+            'hotel_id' => $request->hotel_id,
             'status' => $request->status,
             'assignee_id' => $request->assignee ?: null,
         ]);
@@ -111,7 +114,7 @@ class UpdateController extends Controller
         $message .= "  - Detail: " . $travelodge->detail . "\n";
         $message .= "  - Remarks: " . ($travelodge->remarks ?? "No remarks") . "\n";
         $message .= "  - Department: " . ($travelodge->department->name ?? 'N/A') . "\n";
-        $message .= "  - Hotel: " . $travelodge->hotel . "\n";
+        $message .= "  - Hotel: " . ($travelodge->hotel->hotel_code ?? 'N/A') . "\n";
         $message .= "  - Assignee: " . ($travelodge->assignee->name ?? 'Unassigned') . "\n";
         $message .= "  - Status: " . ($travelodge->status == 0 ? 'In-progress' : 'Done');
 

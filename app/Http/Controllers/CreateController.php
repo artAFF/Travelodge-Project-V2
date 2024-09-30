@@ -10,6 +10,7 @@ use App\Models\Ehcm_net;
 use App\Models\Ehcm_server;
 use App\Models\Ehcm_switch;
 use App\Models\GuestRoom;
+use App\Models\Hotel;
 use App\Models\NetSpeed;
 use App\Models\ServerRoom;
 use App\Models\SwitchRoom;
@@ -39,13 +40,15 @@ class CreateController extends Controller
         // Fetch all categories and departments
         $categories = Category::all();
         $departments = Department::all();
+        $hotels = Hotel::all();
+
         // Get IT Support users
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');
         })->get();
 
         // Return view with data
-        return view('/reports/addIssue', compact('categories', 'departments', 'itSupportUsers'));
+        return view('/reports/addIssue', compact('categories', 'departments', 'itSupportUsers', 'hotels'));
     }
 
     public function InsertReportIssue(Request $request)
@@ -55,7 +58,7 @@ class CreateController extends Controller
             'issues.*.category_id' => 'required|exists:categories,id',
             'issues.*.department_id' => 'required|exists:departments,id',
             'issues.*.detail' => 'required',
-            'issues.*.hotel' => 'required',
+            'issues.*.hotel_id' => 'required|exists:hotels,id',
             'issues.*.file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'issues.*.assignee' => 'nullable|exists:users,id',
         ]);
@@ -68,7 +71,7 @@ class CreateController extends Controller
                 'category_id' => $issueData['category_id'],
                 'department_id' => $issueData['department_id'],
                 'detail' => $issueData['detail'],
-                'hotel' => $issueData['hotel'],
+                'hotel_id' => $issueData['hotel_id'],
                 'status' => $issueData['status'],
                 'assignee_id' => $issueData['assignee'] ?: null,
                 'remarks' => $issueData['remarks'] ?? null,
@@ -103,7 +106,7 @@ class CreateController extends Controller
         $message .= "  - Detail: " . $travelodge->detail . "\n";
         $message .= "  - Remarks: " . ($travelodge->remarks ?? "No remarks") . "\n";
         $message .= "  - Department: " . ($travelodge->department->name ?? 'N/A') . "\n";
-        $message .= "  - Hotel: " . $travelodge->hotel . "\n";
+        $message .= "  - Hotel: " . ($travelodge->hotel->hotel_code ?? 'N/A') . "\n";
         $message .= "  - Attachment: " . ($travelodge->file_path ? 'Yes' : 'No') . "\n";
         $message .= "  - Assignee: " . ($travelodge->assignee->name ?? 'Unassigned') . "\n";
         $message .= "  - Status: " . ($travelodge->status == 0 ? 'In-progress' : 'Done');

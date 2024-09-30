@@ -87,9 +87,9 @@
                     updatePagination(response);
                     updateTitle(label, hotel);
                 },
-                error: function(error) {
-                    console.error('Error fetching data:', error);
-                    console.log('Error details:', error.responseText);
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching data:', textStatus, errorThrown);
+                    console.log('Response Text:', jqXHR.responseText);
                     $('#previewTitle').text('Error loading data');
                 }
             });
@@ -107,7 +107,7 @@
                         <td class="text-center">${issue.detail || 'N/A'}</td>
                         <td class="text-center">${issue.remarks || 'N/A'}</td>
                         <td class="text-center">${issue.department?.name || 'N/A'}</td>
-                        <td class="text-center">${issue.hotel || 'N/A'}</td>
+                        <td class="text-center">${issue.hotel?.code || 'N/A'}</td>
                         <td class="text-center">${issue.status === 0 ? 'In Process' : 'Done'}</td>
                         <td class="text-center">${issue.assignee?.name || 'N/A'}</td>
                         <td class="text-center">${formatDate(issue.created_at)}</td>
@@ -155,14 +155,17 @@
         }
 
         function updateTitle(label, hotel) {
-            const hotelNames = {
-                'TLCMN': 'Travelodge Nimman',
-                'EHCM': 'Eastin Tan',
-                'UNCM': 'U nimman'
-            };
-            const hotelFullName = hotelNames[hotel] || hotel;
-            $('#previewTitle').text(`${label} Issues for ${hotelFullName}`).addClass(
-                'animate__animated animate__fadeInDown');
+            $.ajax({
+                url: `/api/hotel-name/${hotel}`,
+                method: 'GET',
+                success: function(response) {
+                    $('#previewTitle').text(`${label} Issues for ${response.hotel_full_name}`);
+                },
+                error: function(error) {
+                    console.error('Error fetching hotel name:', error);
+                    $('#previewTitle').text(`${label} Issues for ${hotel}`);
+                }
+            });
         }
 
         function formatDate(dateString) {

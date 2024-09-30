@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Hotel;
 use App\Models\Travelodge;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -18,54 +19,49 @@ class ChartController extends Controller
 
     public function HotelChart(Request $request)
     {
-        // Define hotel names and codes
-        $hotels = [
-            'TLCMN' => 'TLCMN',
-            'EHCM' => 'EHCM',
-            'UNCM' => 'UNCM '
-        ];
+        $hotels = Hotel::pluck('hotel_code', 'id')->toArray();
         $data = [];
         $colors = ['#E74C3C', '#2CA02C', '#3498DB'];
         $latestReports = [];
 
-        // Loop through each hotel to gather data
-        foreach ($hotels as $hotel => $hotelLabel) {
-            // Count the number of entries for each hotel
-            $count = Travelodge::where('hotel', $hotel)->count();
-            array_push($data, $count);
+        foreach ($hotels as $id => $hotelCode) {
+            $count = Travelodge::where('hotel_id', $id)->count();
+            $data[$hotelCode] = $count;
 
-            // Get the latest 5 reports for each hotel
-            $latestHotelReports = Travelodge::where('hotel', $hotel)
+            $latestHotelReports = Travelodge::where('hotel_id', $id)
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get(['id', 'detail', 'created_at']);
-            $latestReports[$hotelLabel] = $latestHotelReports;
+            $latestReports[$hotelCode] = $latestHotelReports;
         }
 
-        // Calculate percentages of the data
-        $percentages = $this->calculatePercentages($data);
+        // Sort data from highest to lowest
+        arsort($data);
+
+        // Separate keys and values after sorting
+        $sortedHotels = array_keys($data);
+        $sortedData = array_values($data);
+
+        // Calculate percentages of the sorted data
+        $percentages = $this->calculatePercentages($sortedData);
+
         // Create dataset for the chart
         $datasets = [
             [
                 'label' => 'Hotels',
-                'data' => $data,
-                'backgroundColor' => $colors
+                'data' => $sortedData,
+                'backgroundColor' => array_slice($colors, 0, count($sortedData))
             ]
         ];
-        $hotels = array_values($hotels);
 
         // Send data to the view
-        return view('/home', compact('datasets', 'hotels', 'percentages', 'latestReports'));
+        return view('/home', compact('datasets', 'sortedHotels', 'percentages', 'latestReports'));
     }
 
     public function HotelDashboard(Request $request, $hotel)
     {
         // Define hotel names
-        $hotel_names = [
-            'TLCMN' => 'Travelodge Nimman',
-            'EHCM' => 'Eastin Tan',
-            'UNCM' => 'U nimman'
-        ];
+        $hotel_names = Hotel::pluck('hotel_full_name', 'hotel_code')->toArray();
 
         // Get category and department data for the specified hotel
         $category_data = $this->getCategoryData($hotel);
@@ -82,8 +78,9 @@ class ChartController extends Controller
 
     public function getHotelDataByDate($view, $filterType, Request $request)
     {
-        $hotel = $request->query('hotel');
-        $query = Travelodge::where('hotel', $hotel);
+        $hotelCode = $request->query('hotel');
+        $hotel = Hotel::where('hotel_code', $hotelCode)->firstOrFail();
+        $query = Travelodge::where('hotel_id', $hotel->id);
 
         // Apply date filters based on filter type
         if ($filterType === 'custom') {
@@ -111,7 +108,8 @@ class ChartController extends Controller
 
     public function getIssueDetails($type, $label, Request $request)
     {
-        $hotel = $request->query('hotel');
+        $hotelCode = $request->query('hotel');
+        $hotel = Hotel::where('hotel_code', $hotelCode)->firstOrFail();
         $dateFilter = $request->query('dateFilter');
         $startDate = $request->query('start');
         $endDate = $request->query('end');
@@ -120,9 +118,10 @@ class ChartController extends Controller
         $query = Travelodge::with([
             'category:id,name',
             'department:id,name',
-            'assignee:id,name'
+            'assignee:id,name',
+            'hotel:id,hotel_full_name,hotel_code'
         ])
-            ->where('hotel', $hotel);
+            ->where('hotel_id', $hotel->id);
 
         // Filter by type (category or department)
         if ($type === 'category') {
@@ -153,7 +152,10 @@ class ChartController extends Controller
                 'detail' => $issue->detail ?? 'N/A',
                 'remarks' => $issue->remarks ?? 'N/A',
                 'department' => ['name' => $issue->department->name ?? 'N/A'],
-                'hotel' => $issue->hotel,
+                'hotel' => [
+                    'full_name' => $issue->hotel->hotel_full_name,
+                    'code' => $issue->hotel->hotel_code
+                ],
                 'status' => $issue->status,
                 'assignee' => $issue->assignee ? ['name' => $issue->assignee->name] : null,
                 'created_at' => $issue->created_at,
@@ -216,13 +218,14 @@ class ChartController extends Controller
 
     private function getCategoryData($hotel)
     {
-        $query = Travelodge::where('hotel', $hotel);
+        $hotelId = Hotel::where('hotel_code', $hotel)->value('id');
+        $query = Travelodge::where('hotel_id', $hotelId);
         return $this->getCategoryDataFromQuery($query);
     }
-
     private function getDepartmentData($hotel)
     {
-        $query = Travelodge::where('hotel', $hotel);
+        $hotelId = Hotel::where('hotel_code', $hotel)->value('id');
+        $query = Travelodge::where('hotel_id', $hotelId);
         return $this->getDepartmentDataFromQuery($query);
     }
 
@@ -282,8 +285,12 @@ class ChartController extends Controller
 
     private function calculatePercentages($data)
     {
-        // Calculate percentages based on total
         $total = array_sum($data);
+
+        if ($total == 0) {
+            return array_fill(0, count($data), 0);
+        }
+
         return array_map(function ($value) use ($total) {
             return round(($value / $total) * 100, 2);
         }, $data);
@@ -291,8 +298,9 @@ class ChartController extends Controller
 
     public function getCompareHotelDataByDate($view, $filterType, Request $request)
     {
-        $hotel = $request->query('hotel');
-        $query = Travelodge::where('hotel', $hotel);
+        $hotelCode = $request->query('hotel');
+        $hotel = Hotel::where('hotel_code', $hotelCode)->firstOrFail();
+        $query = Travelodge::where('hotel_id', $hotel->id);
 
         // Apply date filters for current data
         if ($filterType === 'custom') {
@@ -315,7 +323,7 @@ class ChartController extends Controller
         $compareStartDate = $request->query('compareStart');
         $compareEndDate = $request->query('compareEnd');
         if ($compareStartDate && $compareEndDate) {
-            $compareQuery = Travelodge::where('hotel', $hotel);
+            $compareQuery = Travelodge::where('hotel_id', $hotel->id);
             $compareStartDateTime = Carbon::parse($compareStartDate)->startOfDay();
             $compareEndDateTime = Carbon::parse($compareEndDate)->endOfDay();
             $compareQuery->whereBetween('created_at', [$compareStartDateTime, $compareEndDateTime]);
