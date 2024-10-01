@@ -12,7 +12,7 @@ class Travelodge extends Model
         'detail',
         'remarks',
         'department_id',
-        'hotel',
+        'hotel_id',
         'status',
         'file_path',
         'assignee_id'
@@ -35,6 +35,6 @@ class Travelodge extends Model
 
     public function hotel()
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->belongsTo(Hotel::class, 'hotel_id');
     }
 }

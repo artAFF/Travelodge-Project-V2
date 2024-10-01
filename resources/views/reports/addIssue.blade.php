@@ -59,14 +59,11 @@
                     </div>
                 @enderror
 
-                <div class="mb-3">
-                    <label for="hotel" class="form-label">Hotel</label>
-                    <select class="form-select" id="hotel" name="issues[0][hotel]">
-                        @foreach ($hotels as $hotel)
-                            <option value="{{ $hotel->hotel_code }}">{{ $hotel->hotel_code }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <select class="form-select" id="hotel" name="issues[0][hotel_id]">
+                    @foreach ($hotels as $hotel)
+                        <option value="{{ $hotel->id }}">{{ $hotel->hotel_code }}</option>
+                    @endforeach
+                </select>
                 @error('issues.0.hotel')
                     <div class="my-error">
                         <span class="text-danger">{{ $message }}</span>

@@ -53,6 +53,7 @@ class CreateController extends Controller
 
     public function InsertReportIssue(Request $request)
     {
+        /* dd($request->all()); */
         // Validate incoming request data
         $request->validate([
             'issues.*.category_id' => 'required|exists:categories,id',

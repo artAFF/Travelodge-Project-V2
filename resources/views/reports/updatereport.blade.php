@@ -8,7 +8,7 @@
 
         <div class="mb-3">
             <label for="issue" class="form-label">Issue Category</label>
-            <select class="form-select" id="issue" name="category_id">
+            <select class="form-select" id="category" name="category_id">
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" {{ $ReportIssues->category_id == $category->id ? 'selected' : '' }}>
                         {{ $category->name }}
@@ -60,17 +60,14 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="hotel" class="form-label">Hotel</label>
-            <select class="form-select" id="hotel" name="hotel">
-                @foreach ($hotels as $hotel)
-                    <option value="{{ $hotel->hotel_code }}"
-                        {{ $ReportIssues->hotel == $hotel->hotel_code ? 'selected' : '' }}>
-                        {{ $hotel->hotel_code }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+
+        <select class="form-select" id="hotel" name="hotel_id">
+            @foreach ($hotels as $hotel)
+                <option value="{{ $hotel->id }}" {{ $ReportIssues->hotel_id == $hotel->id ? 'selected' : '' }}>
+                    {{ $hotel->hotel_code }}
+                </option>
+            @endforeach
+        </select>
         @error('hotel')
             <div class="my-error">
                 <span class="text-danger">{{ $message }}</span>

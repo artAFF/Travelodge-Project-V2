@@ -13,6 +13,6 @@ class Hotel extends Model
 
     public function travelodges()
     {
-        return $this->hasMany(Travelodge::class);
+        return $this->hasMany(Travelodge::class, 'hotel_id');
     }
 }
