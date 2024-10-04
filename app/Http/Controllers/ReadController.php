@@ -191,48 +191,70 @@ class ReadController extends Controller
         return view('home.itsup_status', compact('itsup_statuses', 'department'));
     }
 
+
     public function TableReportAll(Request $request, $type)
     {
-        // Generate reports for different types of data (guests, switches, servers, net speeds)
         $prefix = $this->getPrefixFromType($type);
         $source = $type;
 
-        // Get page numbers for pagination
         $pageGuests = $request->input('pageGuests', 1);
         $pageSwitchs = $request->input('pageSwitchs', 1);
         $pageServers = $request->input('pageServers', 1);
         $pageNetSpeeds = $request->input('pageNetSpeeds', 1);
 
-        // Fetch data for each type
-        $ReportGuests = DB::table("{$prefix}guests")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageGuests', $pageGuests);
-        $ReportSwitchs = DB::table("{$prefix}switches")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageSwitchs', $pageSwitchs);
-        $ReportServers = DB::table("{$prefix}servers")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageServers', $pageServers);
-        $ReportNetSpeeds = DB::table("{$prefix}nets")->orderBy('id', 'desc')->paginate(10, ['*'], 'pageNetSpeeds', $pageNetSpeeds);
+        $ReportGuests = DB::table("{$prefix}guests")
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
+            ->select(
+                "{$prefix}guests.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->orderBy("{$prefix}guests.id", 'desc')
+            ->paginate(10, ['*'], 'pageGuests', $pageGuests);
 
-        // Handle AJAX requests
+        $ReportSwitchs = DB::table("{$prefix}switches")
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}switches.location_id")
+            ->select(
+                "{$prefix}switches.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->orderBy("{$prefix}switches.id", 'desc')
+            ->paginate(10, ['*'], 'pageSwitchs', $pageSwitchs);
+
+        $ReportServers = DB::table("{$prefix}servers")
+            ->orderBy('id', 'desc')
+            ->paginate(10, ['*'], 'pageServers', $pageServers);
+
+        $ReportNetSpeeds = DB::table("{$prefix}nets")
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}nets.location_id")
+            ->select(
+                "{$prefix}nets.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->orderBy("{$prefix}nets.id", 'desc')
+            ->paginate(10, ['*'], 'pageNetSpeeds', $pageNetSpeeds);
+
         if ($request->ajax()) {
             return response()->json([
                 'ReportGuests' => view('partials.report_guests', compact('ReportGuests', 'source'))->render(),
+                'ReportNetSpeeds' => view('partials.report_netspeeds', compact('ReportNetSpeeds', 'source'))->render(),
                 'ReportSwitchs' => view('partials.report_switchs', compact('ReportSwitchs', 'source'))->render(),
                 'ReportServers' => view('partials.report_servers', compact('ReportServers', 'source'))->render(),
-                'ReportNetSpeeds' => view('partials.report_netspeeds', compact('ReportNetSpeeds', 'source'))->render(),
+
             ]);
         }
 
-        // Return view for non-AJAX requests
         return view("daily.hotels.{$source}", compact('ReportGuests', 'ReportSwitchs', 'ReportServers', 'ReportNetSpeeds', 'source'));
     }
 
     private function getPrefixFromType($type)
     {
-        // Get database prefix based on hotel type
         switch ($type) {
             case 'ehcm':
-                return 'Ehcm_';
+                return 'ehcm_';
             case 'uncm':
-                return 'Uncm_';
+                return 'uncm_';
             default:
-                return 'Tlcmn_';
+                return 'tlcmn_';
         }
     }
 }

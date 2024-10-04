@@ -18,29 +18,30 @@
                     </select>
                 </div>
 
-                <div class="form-group mb-3" id="form1">
-                    <label for="location1" class="form-label">Location</label>
-                    <select class="form-select" id="location1" name="location1">
+                <div class="form-group mb-3">
+                    <label for="location_type">Location Type</label>
+                    <select class="form-select" id="location_type" name="location_type">
+                        <option value="building">Building</option>
+                        <option value="floor">Floor</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3" id="buildingForm">
+                    <label for="building_location">Building</label>
+                    <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
                             <option value="{{ $building->name }}">{{ $building->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="form-group mb-3 hidden" id="form2">
-                    <label for="location2" class="form-label">Location</label>
-                    <select class="form-select" id="location2" name="location2">
-                        @for ($i = 1; $i <= 9; $i++)
-                            <option value="Floor {{ $i }}">Floor {{ $i }}</option>
-                        @endfor
+                <div class="form-group mb-3 hidden" id="floorForm">
+                    <label for="floor_location">Floor</label>
+                    <select class="form-select" id="floor_location" name="floor_location">
+                        @foreach ($floors as $floor)
+                            <option value="{{ $floor->name }}">{{ $floor->name }}</option>
+                        @endforeach
                     </select>
-                </div>
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" value="" id="othersCheckbox">
-                    <label class="form-check-label" for="othersCheckbox">
-                        Others ( Only EHCM and UNCM )
-                    </label>
                 </div>
 
                 <input type="hidden" id="location" name="location" value="">
@@ -168,31 +169,30 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var form = document.querySelector('form');
-            var form1 = document.getElementById('form1');
-            var form2 = document.getElementById('form2');
-            var location1 = document.getElementById('location1');
-            var location2 = document.getElementById('location2');
+            var locationType = document.getElementById('location_type');
+            var buildingForm = document.getElementById('buildingForm');
+            var floorForm = document.getElementById('floorForm');
             var locationHidden = document.getElementById('location');
 
-            var othersCheckbox = document.getElementById('othersCheckbox');
+            locationType.addEventListener('change', function() {
+                buildingForm.classList.add('hidden');
+                floorForm.classList.add('hidden');
 
-            othersCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    form1.classList.add('hidden');
-                    form2.classList.remove('hidden');
-                } else {
-                    form1.classList.remove('hidden');
-                    form2.classList.add('hidden');
+                switch (this.value) {
+                    case 'building':
+                        buildingForm.classList.remove('hidden');
+                        break;
+                    case 'floor':
+                        floorForm.classList.remove('hidden');
+                        break;
                 }
             });
 
-            form.addEventListener('submit', function(e) {
-                if (othersCheckbox.checked) {
-                    locationHidden.value = location2.value;
-                } else {
-                    locationHidden.value = location1.value;
-                }
+            document.querySelector('form').addEventListener('submit', function(e) {
+                var selectedLocation = locationType.value === 'building' ?
+                    document.getElementById('building_location').value :
+                    document.getElementById('floor_location').value;
+                locationHidden.value = selectedLocation;
             });
         });
     </script>

@@ -9,23 +9,20 @@
             <div class="form-section">
                 <h2>Switch Checking</h2>
 
-                @php
-                    $isOthers = in_array($ReportSwitchs->location, [
-                        'Floor 1',
-                        'Floor 2',
-                        'Floor 3',
-                        'Floor 4',
-                        'Floor 5',
-                        'Floor 6',
-                        'Floor 7',
-                        'Floor 8',
-                        'Floor 9',
-                    ]);
-                @endphp
+                <div class="form-group mb-3">
+                    <label for="location_type">Location Type</label>
+                    <select class="form-select" id="location_type" name="location_type">
+                        <option value="building" {{ $ReportSwitchs->location_type == 'building' ? 'selected' : '' }}>Building
+                        </option>
+                        <option value="floor" {{ $ReportSwitchs->location_type == 'floor' ? 'selected' : '' }}>Floor
+                        </option>
+                    </select>
+                </div>
 
-                <div class="form-group mb-3" id="form1" {!! $isOthers ? 'style="display:none;"' : '' !!}>
-                    <label for="location" class="form-label">Location</label>
-                    <select class="form-select" id="location" name="location">
+                <div class="form-group mb-3" id="buildingForm"
+                    {{ $ReportSwitchs->location_type != 'building' ? 'style=display:none;' : '' }}>
+                    <label for="building_location">Building</label>
+                    <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
                             <option value="{{ $building->name }}"
                                 {{ $ReportSwitchs->location == $building->name ? 'selected' : '' }}>
@@ -35,24 +32,20 @@
                     </select>
                 </div>
 
-                <div class="form-group mb-3" id="form2" {!! !$isOthers ? 'style="display:none;"' : '' !!}>
-                    <label for="location2" class="form-label">Location</label>
-                    <select class="form-select" id="location2" name="location">
-                        @foreach (['Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Floor 5', 'Floor 6', 'Floor 7', 'Floor 8', 'Floor 9'] as $floor)
-                            <option value="{{ $floor }}" {{ $ReportSwitchs->location == $floor ? 'selected' : '' }}>
-                                {{ $floor }}
+                <div class="form-group mb-3" id="floorForm"
+                    {{ $ReportSwitchs->location_type != 'floor' ? 'style=display:none;' : '' }}>
+                    <label for="floor_location">Floor</label>
+                    <select class="form-select" id="floor_location" name="floor_location">
+                        @foreach ($floors as $floor)
+                            <option value="{{ $floor->name }}"
+                                {{ $ReportSwitchs->location == $floor->name ? 'selected' : '' }}>
+                                {{ $floor->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" value="" id="othersCheckbox"
-                        {{ $isOthers ? 'checked' : '' }}>
-                    <label class="form-check-label" for="othersCheckbox">
-                        Others ( Only EHCM and UNCM )
-                    </label>
-                </div>
+                <input type="hidden" id="location" name="location" value="{{ $ReportSwitchs->location }}">
             </div>
 
             <div class="form-section">
@@ -173,29 +166,31 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var othersCheckbox = document.getElementById('othersCheckbox');
-            var form1 = document.getElementById('form1');
-            var form2 = document.getElementById('form2');
-            var locationSelect1 = document.getElementById('location');
-            var locationSelect2 = document.getElementById('location2');
+            var locationType = document.getElementById('location_type');
+            var buildingForm = document.getElementById('buildingForm');
+            var floorForm = document.getElementById('floorForm');
+            var locationHidden = document.getElementById('location');
 
-            function toggleForms() {
-                if (othersCheckbox.checked) {
-                    form1.style.display = 'none';
-                    form2.style.display = 'block';
-                    locationSelect1.name = '';
-                    locationSelect2.name = 'location';
-                } else {
-                    form1.style.display = 'block';
-                    form2.style.display = 'none';
-                    locationSelect1.name = 'location';
-                    locationSelect2.name = '';
+            locationType.addEventListener('change', function() {
+                buildingForm.style.display = 'none';
+                floorForm.style.display = 'none';
+
+                switch (this.value) {
+                    case 'building':
+                        buildingForm.style.display = 'block';
+                        break;
+                    case 'floor':
+                        floorForm.style.display = 'block';
+                        break;
                 }
-            }
+            });
 
-            othersCheckbox.addEventListener('change', toggleForms);
-
-            toggleForms();
+            document.querySelector('form').addEventListener('submit', function(e) {
+                var selectedLocation = locationType.value === 'building' ?
+                    document.getElementById('building_location').value :
+                    document.getElementById('floor_location').value;
+                locationHidden.value = selectedLocation;
+            });
         });
     </script>
 @endsection

@@ -10,8 +10,19 @@
                 <h2>Internet Checking</h2>
 
                 <div class="form-group mb-3">
-                    <label for="location" class="form-label">Location</label>
-                    <select class="form-select" id="location" name="location">
+                    <label for="location_type">Location Type</label>
+                    <select class="form-select" id="location_type" name="location_type">
+                        <option value="building" {{ $ReportNetSpeeds->location_type == 'building' ? 'selected' : '' }}>
+                            Building</option>
+                        <option value="facility" {{ $ReportNetSpeeds->location_type == 'facility' ? 'selected' : '' }}>
+                            Facility</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3" id="buildingForm"
+                    {{ $ReportNetSpeeds->location_type != 'building' ? 'style=display:none;' : '' }}>
+                    <label for="building_location">Building</label>
+                    <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
                             <option value="{{ $building->name }}"
                                 {{ $ReportNetSpeeds->location == $building->name ? 'selected' : '' }}>
@@ -20,6 +31,21 @@
                         @endforeach
                     </select>
                 </div>
+
+                <div class="form-group mb-3" id="facilityForm"
+                    {{ $ReportNetSpeeds->location_type != 'facility' ? 'style=display:none;' : '' }}>
+                    <label for="facility_location">Facility</label>
+                    <select class="form-select" id="facility_location" name="facility_location">
+                        @foreach ($facilities as $facility)
+                            <option value="{{ $facility->name }}"
+                                {{ $ReportNetSpeeds->location == $facility->name ? 'selected' : '' }}>
+                                {{ $facility->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <input type="hidden" id="location" name="location" value="{{ $ReportNetSpeeds->location }}">
             </div>
 
             <div class="form-section">
@@ -128,4 +154,33 @@
             }
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var locationType = document.getElementById('location_type');
+            var buildingForm = document.getElementById('buildingForm');
+            var facilityForm = document.getElementById('facilityForm');
+            var locationHidden = document.getElementById('location');
+
+            locationType.addEventListener('change', function() {
+                buildingForm.style.display = 'none';
+                facilityForm.style.display = 'none';
+
+                switch (this.value) {
+                    case 'building':
+                        buildingForm.style.display = 'block';
+                        break;
+                    case 'facility':
+                        facilityForm.style.display = 'block';
+                        break;
+                }
+            });
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                var selectedLocation = locationType.value === 'building' ?
+                    document.getElementById('building_location').value :
+                    document.getElementById('facility_location').value;
+                locationHidden.value = selectedLocation;
+            });
+        });
+    </script>
 @endsection

@@ -23,7 +23,7 @@
     </div>
 
     <div class="row mt-4">
-        @foreach ($latestReports as $hotel => $reports)
+        @foreach ($sortedLatestReports as $hotel => $reports)
             <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: {{ $loop->index * 0.1 }}s">
                 <div class="card hotel-card mb-4">
                     <div class="card-header bg-primary text-white">

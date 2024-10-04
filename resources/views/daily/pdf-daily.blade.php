@@ -97,6 +97,7 @@
                         <th>Location</th>
                         <th>Download Speed (Mbps)</th>
                         <th>Upload Speed (Mbps)</th>
+                        <th>Channel Number</th>
                         <th>Channel Name</th>
                         <th>Timestamp</th>
                     </tr>
@@ -105,9 +106,16 @@
                     @foreach ($guests as $guest)
                         <tr>
                             <td>{{ $guest->room_no }}</td>
-                            <td>{{ $guest->location }}</td>
+                            <td>{{ $guest->location_name }}</td>
                             <td>{{ number_format($guest->download, 2) }}</td>
                             <td>{{ number_format($guest->upload, 2) }}</td>
+                            <td>
+                                @if ($guest->ch_no == 0)
+                                    Normal
+                                @else
+                                    {{ $guest->ch_no }}
+                                @endif
+                            </td>
                             <td>{{ $guest->ch_name }}</td>
                             <td>{{ \Carbon\Carbon::parse($guest->created_at)->format('Y-m-d H:i:s') }}</td>
                         </tr>
@@ -135,7 +143,7 @@
                 <tbody>
                     @foreach ($switches as $switch)
                         <tr>
-                            <td>{{ $switch->location }}</td>
+                            <td>{{ $switch->location_name }}</td>
                             <td>{{ number_format($switch->ups_battery, 1) }}</td>
                             <td>{{ $switch->ups_time }}</td>
                             <td>{{ number_format($switch->ups_temp, 1) }}</td>
@@ -192,7 +200,7 @@
                 <tbody>
                     @foreach ($netSpeeds as $netSpeed)
                         <tr>
-                            <td>{{ $netSpeed->location }}</td>
+                            <td>{{ $netSpeed->location_name }}</td>
                             <td>{{ number_format($netSpeed->download, 2) }}</td>
                             <td>{{ number_format($netSpeed->upload, 2) }}</td>
                             <td>{{ \Carbon\Carbon::parse($netSpeed->created_at)->format('Y-m-d H:i:s') }}</td>

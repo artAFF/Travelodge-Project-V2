@@ -54,8 +54,16 @@ class ChartController extends Controller
             ]
         ];
 
+        // Sort latestReports based on the number of reports
+        $sortedLatestReports = [];
+        foreach ($data as $hotelCode => $count) {
+            if (isset($latestReports[$hotelCode])) {
+                $sortedLatestReports[$hotelCode] = $latestReports[$hotelCode];
+            }
+        }
+
         // Send data to the view
-        return view('/home', compact('datasets', 'sortedHotels', 'percentages', 'latestReports'));
+        return view('/home', compact('datasets', 'sortedHotels', 'percentages', 'sortedLatestReports'));
     }
 
     public function HotelDashboard(Request $request, $hotel)

@@ -9,8 +9,8 @@ class Ehcm_net extends Model
 {
     use HasFactory;
 
-    public function building()
+    public function location()
     {
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(location::class);
     }
 }

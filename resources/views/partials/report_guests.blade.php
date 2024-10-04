@@ -26,11 +26,17 @@
                         @foreach ($ReportGuests as $ReportGuest)
                             <tr>
                                 <td>{{ $ReportGuest->id }}</td>
-                                <td>{{ $ReportGuest->location }}</td>
+                                <td>{{ $ReportGuest->location_name }}</td>
                                 <td>{{ $ReportGuest->room_no }}</td>
                                 <td>{{ $ReportGuest->download }}</td>
                                 <td>{{ $ReportGuest->upload }}</td>
-                                <td>{{ $ReportGuest->ch_no }}</td>
+                                <td>
+                                    @if ($ReportGuest->ch_no == 0)
+                                        Normal
+                                    @else
+                                        {{ $ReportGuest->ch_no }}
+                                    @endif
+                                </td>
                                 <td>{{ $ReportGuest->ch_name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($ReportGuest->created_at)->format('d/m/Y H:i:s') }}</td>
                                 <td>

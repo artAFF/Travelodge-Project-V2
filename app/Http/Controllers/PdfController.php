@@ -153,27 +153,23 @@ class PdfController extends Controller
 
     public function downloadPdfDaily(Request $request)
     {
-        // Retrieve search parameters from session
         $searchParams = $request->session()->get('searchResults');
 
         if (!$searchParams) {
             return redirect()->route('search')->with('error', 'No search results found. Please perform a search first.');
         }
 
-        // Extract search parameters
         $prefix = $this->getPrefixFromHotel($searchParams['hotel']);
         $category = $searchParams['category'] ?? 'all';
         $start_date = $searchParams['start_date'];
         $end_date = $searchParams['end_date'];
         $query = $searchParams['query'];
 
-        // Fetch data based on category (without pagination)
         $guests = ($category == 'all' || $category == 'guest') ? $this->getGuests($prefix, $start_date, $end_date, $query, false) : collect();
         $netSpeeds = ($category == 'all' || $category == 'internet') ? $this->getNetSpeeds($prefix, $start_date, $end_date, $query, false) : collect();
         $servers = ($category == 'all' || $category == 'server') ? $this->getServers($prefix, $start_date, $end_date, $query, false) : collect();
         $switches = ($category == 'all' || $category == 'switch') ? $this->getSwitches($prefix, $start_date, $end_date, $query, false) : collect();
 
-        // Prepare data for PDF
         $pdfData = [
             'guests' => $guests,
             'netSpeeds' => $netSpeeds,
@@ -185,10 +181,8 @@ class PdfController extends Controller
             'hotel' => $searchParams['hotel']
         ];
 
-        // Generate PDF
         $pdf = FacadePdf::loadView('/daily/pdf-daily', $pdfData);
 
-        // Download PDF
         return $pdf->download('daily_report.pdf');
     }
 
@@ -196,15 +190,20 @@ class PdfController extends Controller
     private function getGuests($prefix, $start_date, $end_date, $query, $paginate = true)
     {
         $query = DB::table("{$prefix}guests")
-            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                return $q->whereBetween('created_at', [$start_date, $end_date]);
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
+            ->select(
+                "{$prefix}guests.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
+                return $q->whereBetween("{$prefix}guests.created_at", [$start_date, $end_date]);
             })
-            ->when($start_date && !$end_date, function ($q) use ($start_date) {
-                return $q->where('created_at', '>=', $start_date);
+            ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
+                return $q->where("{$prefix}guests.created_at", '>=', $start_date);
             })
             ->when($query, function ($q) use ($query) {
                 return $q->where('room_no', 'like', "%{$query}%")
-                    ->orWhere('location', 'like', "%{$query}%")
+                    ->orWhere(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%")
                     ->orWhere('ch_name', 'like', "%{$query}%");
             });
 
@@ -214,14 +213,19 @@ class PdfController extends Controller
     private function getNetSpeeds($prefix, $start_date, $end_date, $query, $paginate = true)
     {
         $query = DB::table("{$prefix}nets")
-            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                return $q->whereBetween('created_at', [$start_date, $end_date]);
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}nets.location_id")
+            ->select(
+                "{$prefix}nets.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
+                return $q->whereBetween("{$prefix}nets.created_at", [$start_date, $end_date]);
             })
-            ->when($start_date && !$end_date, function ($q) use ($start_date) {
-                return $q->where('created_at', '>=', $start_date);
+            ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
+                return $q->where("{$prefix}nets.created_at", '>=', $start_date);
             })
             ->when($query, function ($q) use ($query) {
-                return $q->where('location', 'like', "%{$query}%");
+                return $q->where(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%");
             });
 
         return $paginate ? $query->paginate(10, ['*'], 'netSpeeds_page') : $query->get();
@@ -246,14 +250,19 @@ class PdfController extends Controller
     private function getSwitches($prefix, $start_date, $end_date, $query, $paginate = true)
     {
         $query = DB::table("{$prefix}switches")
-            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                return $q->whereBetween('created_at', [$start_date, $end_date]);
+            ->leftJoin('locations', 'locations.id', '=', "{$prefix}switches.location_id")
+            ->select(
+                "{$prefix}switches.*",
+                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
+            )
+            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
+                return $q->whereBetween("{$prefix}switches.created_at", [$start_date, $end_date]);
             })
-            ->when($start_date && !$end_date, function ($q) use ($start_date) {
-                return $q->where('created_at', '>=', $start_date);
+            ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
+                return $q->where("{$prefix}switches.created_at", '>=', $start_date);
             })
             ->when($query, function ($q) use ($query) {
-                return $q->where('location', 'like', "%{$query}%");
+                return $q->where(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%");
             });
 
         return $paginate ? $query->paginate(10, ['*'], 'switches_page') : $query->get();

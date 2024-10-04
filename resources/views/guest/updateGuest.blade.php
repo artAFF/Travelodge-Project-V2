@@ -9,23 +9,22 @@
             <div class="form-section">
                 <h2>Guest Room Information</h2>
 
-                @php
-                    $isOthers = in_array($ReportGuests->location, [
-                        'Floor 1',
-                        'Floor 2',
-                        'Floor 3',
-                        'Floor 4',
-                        'Floor 5',
-                        'Floor 6',
-                        'Floor 7',
-                        'Floor 8',
-                        'Floor 9',
-                    ]);
-                @endphp
+                <div class="form-group mb-3">
+                    <label for="location_type">Location Type</label>
+                    <select class="form-select" id="location_type" name="location_type">
+                        <option value="building" {{ $ReportGuests->location_type == 'building' ? 'selected' : '' }}>Building
+                        </option>
+                        <option value="floor" {{ $ReportGuests->location_type == 'floor' ? 'selected' : '' }}>Floor
+                        </option>
+                        <option value="facility" {{ $ReportGuests->location_type == 'facility' ? 'selected' : '' }}>Facility
+                        </option>
+                    </select>
+                </div>
 
-                <div class="form-group mb-3" id="form1" {!! $isOthers ? 'style="display:none;"' : '' !!}>
-                    <label for="location">Location</label>
-                    <select class="form-select" id="location" name="location">
+                <div class="form-group mb-3" id="buildingForm"
+                    {{ $ReportGuests->location_type != 'building' ? 'style=display:none;' : '' }}>
+                    <label for="building_location">Building</label>
+                    <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
                             <option value="{{ $building->name }}"
                                 {{ $ReportGuests->location == $building->name ? 'selected' : '' }}>
@@ -35,23 +34,17 @@
                     </select>
                 </div>
 
-                <div class="form-group mb-3" id="form2" {!! !$isOthers ? 'style="display:none;"' : '' !!}>
-                    <label for="location2">Location</label>
-                    <select class="form-select" id="location2" name="location">
-                        @foreach (['Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Floor 5', 'Floor 6', 'Floor 7', 'Floor 8', 'Floor 9'] as $floor)
-                            <option value="{{ $floor }}" {{ $ReportGuests->location == $floor ? 'selected' : '' }}>
-                                {{ $floor }}
+                <div class="form-group mb-3" id="floorForm"
+                    {{ $ReportGuests->location_type != 'floor' ? 'style=display:none;' : '' }}>
+                    <label for="floor_location">Floor</label>
+                    <select class="form-select" id="floor_location" name="floor_location">
+                        @foreach ($floors as $floor)
+                            <option value="{{ $floor->name }}"
+                                {{ $ReportGuests->location == $floor->name ? 'selected' : '' }}>
+                                {{ $floor->name }}
                             </option>
                         @endforeach
                     </select>
-                </div>
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" value="" id="othersCheckbox"
-                        {{ $isOthers ? 'checked' : '' }}>
-                    <label class="form-check-label" for="othersCheckbox">
-                        Others ( Only EHCM and UNCM )
-                    </label>
                 </div>
 
                 <div class="form-floating mb-3">
@@ -62,56 +55,55 @@
                 @error('room_no')
                     <div class="text-danger">{{ $message }}</div>
                 @enderror
-            </div>
 
-            <div class="form-section">
-                <h2>Internet Speed</h2>
+                <div class="form-section">
+                    <h2>Internet Speed</h2>
 
-                <div class="form-floating mb-3">
-                    <input type="number" step="0.1" class="form-control" id="download" name="download"
-                        placeholder="Download" value="{{ $ReportGuests->download }}">
-                    <label for="download">Download (Mbps)</label>
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.1" class="form-control" id="download" name="download"
+                            placeholder="Download" value="{{ $ReportGuests->download }}">
+                        <label for="download">Download (Mbps)</label>
+                    </div>
+                    @error('download')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.1" class="form-control" id="upload" name="upload"
+                            placeholder="Upload" value="{{ $ReportGuests->upload }}">
+                        <label for="upload">Upload (Mbps)</label>
+                    </div>
+                    @error('upload')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('download')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
 
-                <div class="form-floating mb-3">
-                    <input type="number" step="0.1" class="form-control" id="upload" name="upload"
-                        placeholder="Upload" value="{{ $ReportGuests->upload }}">
-                    <label for="upload">Upload (Mbps)</label>
+                <div class="form-section">
+                    <h2>TV Channel</h2>
+
+                    <div class="form-floating mb-3">
+                        <input type="number" step="0.01" class="form-control" id="ch_no" name="ch_no"
+                            placeholder="Channel Number" value="{{ $ReportGuests->ch_no }}">
+                        <label for="ch_no">Channel Number</label>
+                    </div>
+                    @error('ch_no')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="ch_name" name="ch_name" placeholder="Channel Name"
+                            value="{{ $ReportGuests->ch_name }}">
+                        <label for="ch_name">Channel Name</label>
+                    </div>
+                    @error('ch_name')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
-                @error('upload')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
 
-            <div class="form-section">
-                <h2>TV Channel</h2>
-
-                <div class="form-floating mb-3">
-                    <input type="number" step="0.01" class="form-control" id="ch_no" name="ch_no"
-                        placeholder="Channel Number" value="{{ $ReportGuests->ch_no }}">
-                    <label for="ch_no">Channel Number</label>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <a href="/daily/hotels/{{ $type }}" class="btn btn-secondary">Cancel</a>
                 </div>
-                @error('ch_no')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="ch_name" name="ch_name" placeholder="Channel Name"
-                        value="{{ $ReportGuests->ch_name }}">
-                    <label for="ch_name">Channel Name</label>
-                </div>
-                @error('ch_name')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Update</button>
-                <a href="/daily/hotels/{{ $type }}" class="btn btn-secondary">Cancel</a>
-            </div>
         </form>
     </div>
 
@@ -195,29 +187,24 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var othersCheckbox = document.getElementById('othersCheckbox');
-            var form1 = document.getElementById('form1');
-            var form2 = document.getElementById('form2');
-            var locationSelect1 = document.getElementById('location');
-            var locationSelect2 = document.getElementById('location2');
+            var locationType = document.getElementById('location_type');
+            var buildingForm = document.getElementById('buildingForm');
+            var floorForm = document.getElementById('floorForm');
 
-            function toggleForms() {
-                if (othersCheckbox.checked) {
-                    form1.style.display = 'none';
-                    form2.style.display = 'block';
-                    locationSelect1.name = '';
-                    locationSelect2.name = 'location';
-                } else {
-                    form1.style.display = 'block';
-                    form2.style.display = 'none';
-                    locationSelect1.name = 'location';
-                    locationSelect2.name = '';
+            locationType.addEventListener('change', function() {
+                buildingForm.style.display = 'none';
+                floorForm.style.display = 'none';
+                facilityForm.style.display = 'none';
+
+                switch (this.value) {
+                    case 'building':
+                        buildingForm.style.display = 'block';
+                        break;
+                    case 'floor':
+                        floorForm.style.display = 'block';
+                        break;
                 }
-            }
-
-            othersCheckbox.addEventListener('change', toggleForms);
-
-            toggleForms();
+            });
         });
     </script>
 @endsection

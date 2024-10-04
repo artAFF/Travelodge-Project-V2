@@ -82,11 +82,17 @@
                                     @foreach ($guests as $guest)
                                         <tr class="animate-row">
                                             <td>{{ $guest->id }}</td>
-                                            <td>{{ $guest->location }}</td>
+                                            <td>{{ $guest->location_name }}</td>
                                             <td>{{ $guest->room_no }}</td>
                                             <td>{{ $guest->download }}</td>
                                             <td>{{ $guest->upload }}</td>
-                                            <td>{{ $guest->ch_no }}</td>
+                                            <td>
+                                                @if ($guest->ch_no == 0)
+                                                    Normal
+                                                @else
+                                                    {{ $guest->ch_no }}
+                                                @endif
+                                            </td>
                                             <td>{{ $guest->ch_name }}</td>
                                             <td>{{ \Carbon\Carbon::parse($guest->created_at)->format('d/m/Y H:i:s') }}</td>
                                             <td>{{ \Carbon\Carbon::parse($guest->updated_at)->format('d/m/Y H:i:s') }}</td>
@@ -127,7 +133,7 @@
                                     @foreach ($switches as $switch)
                                         <tr class="animate-row">
                                             <td>{{ $switch->id }}</td>
-                                            <td>{{ $switch->location }}</td>
+                                            <td>{{ $switch->location_name }}</td>
                                             <td>{{ $switch->ups_battery }}</td>
                                             <td>{{ $switch->ups_time }}</td>
                                             <td>{{ $switch->ups_temp }}</td>
@@ -216,7 +222,7 @@
                                     @foreach ($netSpeeds as $netSpeed)
                                         <tr class="animate-row">
                                             <td>{{ $netSpeed->id }}</td>
-                                            <td>{{ $netSpeed->location }}</td>
+                                            <td>{{ $netSpeed->location_name }}</td>
                                             <td>{{ $netSpeed->download }}</td>
                                             <td>{{ $netSpeed->upload }}</td>
                                             <td>{{ \Carbon\Carbon::parse($netSpeed->created_at)->format('d/m/Y H:i:s') }}

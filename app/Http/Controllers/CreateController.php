@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Building;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Ehcm_guest;
@@ -11,6 +10,7 @@ use App\Models\Ehcm_server;
 use App\Models\Ehcm_switch;
 use App\Models\GuestRoom;
 use App\Models\Hotel;
+use App\Models\Location;
 use App\Models\NetSpeed;
 use App\Models\ServerRoom;
 use App\Models\SwitchRoom;
@@ -132,31 +132,29 @@ class CreateController extends Controller
         }
     }
 
-    function AddGuest($type)
+    public function AddGuest($type)
     {
-        // Fetch all building names
-        $buildings = Building::select('name')->get();
-        return view('/guest/addGuest', compact('buildings', 'type'));
+        $buildings = Location::where('type', 'building')->get();
+        $floors = Location::where('type', 'floor')->get();
+        return view('/guest/addGuest', compact('buildings', 'floors', 'type'));
     }
 
     public function InsertGuest(Request $request)
     {
-        // Validate guest data
         $request->validate([
             'room_no' => 'required',
             'upload' => 'required',
             'download' => 'required',
             'ch_no' => 'required',
             'ch_name' => 'required',
-            'location' => 'required'
+            'location_id' => 'required|exists:locations,id'
         ]);
 
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'guest');
 
-        // Prepare guest data
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'room_no' => $request->room_no,
             'upload' => $request->upload,
             'download' => $request->download,
@@ -165,53 +163,48 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
-        // Insert guest data
-        $model::insert($data);
+        $model::create($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
-    function AddSwitch($type)
+    public function AddSwitch($type)
     {
-        // Fetch all building names
-        $buildings = Building::select('name')->get();
-        return view('/switchs/addSwitch', compact('buildings', 'type'));
+        $buildings = Location::where('type', 'building')->get();
+        $floors = Location::where('type', 'floor')->get();
+        return view('/switchs/addSwitch', compact('buildings', 'floors', 'type'));
     }
 
     public function InsertSwitch(Request $request)
     {
-        // Validate switch data
         $request->validate([
             'ups_battery' => 'required',
             'ups_time' => 'required',
             'ups_temp' => 'required',
-            'location' => 'required'
+            'location_id' => 'required|exists:locations,id'
         ]);
 
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'switch');
 
-        // Prepare switch data
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'ups_battery' => $request->ups_battery,
             'ups_time' => $request->ups_time,
             'ups_temp' => $request->ups_temp,
             'created_at' => now()
         ];
 
-        // Insert switch data
-        $model::insert($data);
+        $model::create($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
-    function AddServer($type)
+    public function AddServer($type)
     {
         return view('/servers/addServer', compact('type'));
     }
 
     public function InsertServer(Request $request)
     {
-        // Validate server data
         $request->validate([
             'server_temp' => 'required|numeric',
             'ups_temp' => 'required|numeric',
@@ -222,7 +215,6 @@ class CreateController extends Controller
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'server');
 
-        // Prepare server data
         $data = [
             'server_temp' => $request->server_temp,
             'ups_temp' => $request->ups_temp,
@@ -231,46 +223,41 @@ class CreateController extends Controller
             'created_at' => now()
         ];
 
-        // Insert server data
-        $model::insert($data);
+        $model::create($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
-    function AddNetSpeed($type)
+    public function AddNetSpeed($type)
     {
-        // Fetch all building names
-        $buildings = Building::select('name')->get();
-        return view('/netspeed/addNetSpeed', compact('buildings', 'type'));
+        $buildings = Location::where('type', 'building')->get();
+        $facilities = Location::where('type', 'facility')->get();
+        return view('/netspeed/addNetSpeed', compact('buildings', 'facilities', 'type'));
     }
 
     public function InsertNetSpeed(Request $request)
     {
-        // Validate net speed data
         $request->validate([
             'upload' => 'required',
             'download' => 'required',
-            'location' => 'required'
+            'location_id' => 'required|exists:locations,id'
         ]);
 
         $hotel = $request->input('hotel');
         $model = $this->getModelFromType($hotel, 'net');
 
-        // Prepare net speed data
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'upload' => $request->upload,
             'download' => $request->download,
             'created_at' => now()
         ];
 
-        // Insert net speed data
-        $model::insert($data);
+        $model::create($data);
         return redirect("/daily/hotels/{$hotel}");
     }
 
     private function getModelFromType($type, $modelType)
     {
-        // Return the appropriate model class based on hotel type and model type
         switch ($type) {
             case 'tlcmn':
                 return "App\\Models\\Tlcmn_{$modelType}";

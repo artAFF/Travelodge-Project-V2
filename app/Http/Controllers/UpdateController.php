@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Building;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Ehcm_guest;
@@ -11,6 +10,7 @@ use App\Models\Ehcm_server;
 use App\Models\Ehcm_switch;
 use App\Models\GuestRoom;
 use App\Models\Hotel;
+use App\Models\Location;
 use App\Models\NetSpeed;
 use App\Models\ServerRoom;
 use App\Models\SwitchRoom;
@@ -265,21 +265,21 @@ class UpdateController extends Controller
     // The following methods handle updates for different entities (Guest, Switch, Server, NetSpeed)
     // They follow a similar pattern: fetch data, show update form, process update
 
-    function UpdateGuest($type, $id)
+    public function UpdateGuest($type, $id)
     {
-        // Show form to update guest information
         $model = $this->getModelFromType($type, 'guest');
-        $ReportGuests = $model::where('id', $id)->first();
-        $buildings = Building::select('name')->get();
+        $ReportGuests = $model::with('location')->findOrFail($id);
+        $buildings = Location::where('type', 'building')->get();
+        $floors = Location::where('type', 'floor')->get();
+        $facilities = Location::where('type', 'facility')->get();
 
-        return view('/guest/updateGuest', compact('ReportGuests', 'buildings', 'type'));
+        return view('/guest/updateGuest', compact('ReportGuests', 'buildings', 'floors', 'facilities', 'type'));
     }
 
-    function UpdateGuestProcess(Request $request, $type, $id)
+    public function UpdateGuestProcess(Request $request, $type, $id)
     {
-        // Process guest information update
         $request->validate([
-            'location' => 'required',
+            'location_id' => 'required|exists:locations,id',
             'room_no' => 'required',
             'upload' => 'required',
             'download' => 'required',
@@ -288,7 +288,7 @@ class UpdateController extends Controller
         ]);
 
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'room_no' => $request->room_no,
             'upload' => $request->upload,
             'download' => $request->download,
@@ -302,28 +302,27 @@ class UpdateController extends Controller
         return redirect("/daily/hotels/{$type}");
     }
 
-    function UpdateSwitch($type, $id)
+    public function UpdateSwitch($type, $id)
     {
-        // Show form to update switch information
         $model = $this->getModelFromType($type, 'switch');
-        $ReportSwitchs = $model::where('id', $id)->first();
-        $buildings = Building::select('name')->get();
+        $ReportSwitchs = $model::with('location')->findOrFail($id);
+        $buildings = Location::where('type', 'building')->get();
+        $floors = Location::where('type', 'floor')->get();
 
-        return view('/switchs/updateSwitch', compact('ReportSwitchs', 'buildings', 'type'));
+        return view('/switchs/updateSwitch', compact('ReportSwitchs', 'buildings', 'floors', 'type'));
     }
 
-    function UpdateSwitchProcess(Request $request, $type, $id)
+    public function UpdateSwitchProcess(Request $request, $type, $id)
     {
-        // Process switch information update
         $request->validate([
-            'location' => 'required',
+            'location_id' => 'required|exists:locations,id',
             'ups_battery' => 'required',
             'ups_time' => 'required',
             'ups_temp' => 'required'
         ]);
 
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'ups_battery' => $request->ups_battery,
             'ups_time' => $request->ups_time,
             'ups_temp' => $request->ups_temp,
@@ -335,18 +334,16 @@ class UpdateController extends Controller
         return redirect("/daily/hotels/{$type}");
     }
 
-    function UpdateServer($type, $id)
+    public function UpdateServer($type, $id)
     {
-        // Show form to update server information
         $model = $this->getModelFromType($type, 'server');
-        $ReportServers = $model::where('id', $id)->first();
+        $ReportServers = $model::findOrFail($id);
 
         return view('/servers/updateServer', compact('ReportServers', 'type'));
     }
 
-    function UpdateServerProcess(Request $request, $type, $id)
+    public function UpdateServerProcess(Request $request, $type, $id)
     {
-        // Process server information update
         $request->validate([
             'server_temp' => 'required',
             'ups_temp' => 'required',
@@ -367,27 +364,26 @@ class UpdateController extends Controller
         return redirect("/daily/hotels/{$type}");
     }
 
-    function UpdateReportNetSpeed($type, $id)
+    public function UpdateReportNetSpeed($type, $id)
     {
-        // Show form to update net speed information
         $model = $this->getModelFromType($type, 'net');
-        $ReportNetSpeeds = $model::where('id', $id)->first();
-        $buildings = Building::select('name')->get();
+        $ReportNetSpeeds = $model::with('location')->findOrFail($id);
+        $buildings = Location::where('type', 'building')->get();
+        $facilities = Location::where('type', 'facility')->get();
 
-        return view('/netspeed/updateNetSpeed', compact('ReportNetSpeeds', 'buildings', 'type'));
+        return view('/netspeed/updateNetSpeed', compact('ReportNetSpeeds', 'buildings', 'facilities', 'type'));
     }
 
-    function UpdateReportNetSpeedProcess(Request $request, $type, $id)
+    public function UpdateReportNetSpeedProcess(Request $request, $type, $id)
     {
-        // Process net speed information update
         $request->validate([
-            'location' => 'required',
+            'location_id' => 'required|exists:locations,id',
             'upload' => 'required',
             'download' => 'required'
         ]);
 
         $data = [
-            'location' => $request->location,
+            'location_id' => $request->location_id,
             'upload' => $request->upload,
             'download' => $request->download,
             'updated_at' => now()
@@ -400,7 +396,6 @@ class UpdateController extends Controller
 
     private function getModelFromType($type, $modelType)
     {
-        // Get the appropriate model class based on hotel type and model type
         switch ($type) {
             case 'tlcmn':
                 return "App\\Models\\Tlcmn_{$modelType}";
