@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Department;
 use App\Models\Hotel;
 use App\Models\Travelodge;
 use Illuminate\Http\Request;
@@ -351,5 +353,128 @@ class ChartController extends Controller
         } else {
             return $this->getDepartmentDataFromQuery($query);
         }
+    }
+
+    public function showCountChart()
+    {
+        $weeklyData = $this->getCountWeeklyData();
+        $monthlyData = $this->getCountMonthlyData();
+        $departmentData = $this->getCountDepartmentData();
+        $categoryData = $this->getCountCategoryData();
+
+        return view('dashboards.travelodge_project_stats', compact('weeklyData', 'monthlyData', 'departmentData', 'categoryData'));
+    }
+
+    private function getCountWeeklyData()
+    {
+        $travelodges = Travelodge::selectRaw('DAYOFWEEK(created_at) as day_of_week, COUNT(*) as count')
+            ->whereYear('created_at', '=', now()->year)
+            ->groupBy('day_of_week')
+            ->orderBy('day_of_week')
+            ->get();
+
+        $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        $data = array_fill(0, 7, 0);
+        $colors = ['#C71585', '#E63946', '#F1C23B', '#53577A', '#2ECC40', '#3598DC', '#90CAF9'];
+
+        foreach ($travelodges as $travelodge) {
+            $index = ($travelodge->day_of_week + 5) % 7;
+            $data[$index] = $travelodge->count;
+        }
+
+        return [
+            'labels' => $days,
+            'datasets' => [
+                [
+                    'label' => 'Cases ',
+                    'data' => $data,
+                    'backgroundColor' => $colors
+                ]
+            ]
+        ];
+    }
+
+    private function getCountMonthlyData()
+    {
+        $travelodges = Travelodge::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $months = [];
+        $data = [];
+        $colors = ['#C71585', '#E63946', '#F1C23B', '#53577A', '#2ECC40', '#3598DC', '#90CAF9', '#D81B60', '#FF9999', '#6A3AB1', '#2196F3', '#1976D2'];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $month = date('F', mktime(0, 0, 0, $i, 1));
+            $count = $travelodges->firstWhere('month', $i)->count ?? 0;
+
+            $months[] = $month;
+            $data[] = $count;
+        }
+
+        return [
+            'labels' => $months,
+            'datasets' => [
+                [
+                    'label' => 'Cases ',
+                    'data' => $data,
+                    'backgroundColor' => $colors
+                ]
+            ]
+        ];
+    }
+
+    private function getCountDepartmentData()
+    {
+        $departmentsWithCounts = Travelodge::join('departments', 'travelodges.department_id', '=', 'departments.id')
+            ->select('departments.name as department')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('departments.id', 'departments.name')
+            ->orderByDesc('count')
+            ->get();
+
+        $departments = $departmentsWithCounts->pluck('department')->toArray();
+        $data = $departmentsWithCounts->pluck('count')->toArray();
+        $colors = ['#C71585', '#E63946', '#F1C23B', '#53577A', '#2ECC40', '#3598DC', '#90CAF9', '#D81B60', '#FF9999', '#6A3AB1', '#2196F3', '#1976D2', '#007bff'];
+        $colors = array_slice($colors, 0, count($departments));
+
+        return [
+            'labels' => $departments,
+            'datasets' => [
+                [
+                    'label' => 'Cases ',
+                    'data' => $data,
+                    'backgroundColor' => $colors
+                ]
+            ]
+        ];
+    }
+
+    private function getCountCategoryData()
+    {
+        $categoriesWithCounts = Travelodge::join('categories', 'travelodges.category_id', '=', 'categories.id')
+            ->select('categories.name as category')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('categories.id', 'categories.name')
+            ->orderByDesc('count')
+            ->get();
+
+        $categories = $categoriesWithCounts->pluck('category')->toArray();
+        $data = $categoriesWithCounts->pluck('count')->toArray();
+        $colors = ['#C71585', '#E63946', '#F1C23B', '#53577A', '#6495ED', '#20B2AA', '#FFA07A', '#808080', '#7FFFD4', '#D3D3D3', '#90CAF9'];
+        $colors = array_slice($colors, 0, count($categories));
+
+        return [
+            'labels' => $categories,
+            'datasets' => [
+                [
+                    'label' => 'Cases ',
+                    'data' => $data,
+                    'backgroundColor' => $colors
+                ]
+            ]
+        ];
     }
 }

@@ -18,6 +18,8 @@
                     </select>
                 </div>
 
+                <input type="hidden" id="location_id" name="location_id" value="">
+
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
@@ -30,7 +32,8 @@
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
-                            <option value="{{ $building->name }}">{{ $building->name }}</option>
+                            <option value="{{ $building->id }}" data-name="{{ $building->name }}">{{ $building->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -39,12 +42,11 @@
                     <label for="facility_location">Facility</label>
                     <select class="form-select" id="facility_location" name="facility_location">
                         @foreach ($facilities as $facility)
-                            <option value="{{ $facility->name }}">{{ $facility->name }}</option>
+                            <option value="{{ $facility->id }}" data-name="{{ $facility->name }}">{{ $facility->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
-
-                <input type="hidden" id="location" name="location" value="">
             </div>
 
             <div class="form-section">
@@ -163,28 +165,28 @@
             var locationType = document.getElementById('location_type');
             var buildingForm = document.getElementById('buildingForm');
             var facilityForm = document.getElementById('facilityForm');
-            var locationHidden = document.getElementById('location');
+            var locationIdInput = document.getElementById('location_id');
 
-            locationType.addEventListener('change', function() {
-                buildingForm.classList.add('hidden');
-                facilityForm.classList.add('hidden');
-
-                switch (this.value) {
-                    case 'building':
-                        buildingForm.classList.remove('hidden');
-                        break;
-                    case 'facility':
-                        facilityForm.classList.remove('hidden');
-                        break;
+            function updateLocation() {
+                var selectedOption;
+                if (locationType.value === 'building') {
+                    selectedOption = document.getElementById('building_location').selectedOptions[0];
+                    buildingForm.classList.remove('hidden');
+                    facilityForm.classList.add('hidden');
+                } else {
+                    selectedOption = document.getElementById('facility_location').selectedOptions[0];
+                    buildingForm.classList.add('hidden');
+                    facilityForm.classList.remove('hidden');
                 }
-            });
+                locationIdInput.value = selectedOption.value;
+            }
 
-            document.querySelector('form').addEventListener('submit', function(e) {
-                var selectedLocation = locationType.value === 'building' ?
-                    document.getElementById('building_location').value :
-                    document.getElementById('facility_location').value;
-                locationHidden.value = selectedLocation;
-            });
+            locationType.addEventListener('change', updateLocation);
+            document.getElementById('building_location').addEventListener('change', updateLocation);
+            document.getElementById('facility_location').addEventListener('change', updateLocation);
+
+            // Initial update
+            updateLocation();
         });
     </script>
 @endsection

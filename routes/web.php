@@ -52,6 +52,7 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
         return view('dashboards.issue_preview');
     })->name('issue.preview');
     Route::get('/api/hotel-data-compare/{view}/{filterType}', [ChartController::class, 'getCompareHotelDataByDate']);
+    Route::get('/dashboards/travelodge_project_stats', [ChartController::class, 'showCountChart'])->name('dashboards.travelodge_project_stats');
 
     // PDF Generation Routes
     Route::get('/filter/filter-form', [PdfController::class, 'showFilterForm'])->name('filter.form');

@@ -9,10 +9,13 @@
             <div class="form-section">
                 <h2>Switch Checking</h2>
 
+                <input type="hidden" id="location_id" name="location_id" value="{{ $ReportSwitchs->location_id }}">
+
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
-                        <option value="building" {{ $ReportSwitchs->location_type == 'building' ? 'selected' : '' }}>Building
+                        <option value="building" {{ $ReportSwitchs->location_type == 'building' ? 'selected' : '' }}>
+                            Building
                         </option>
                         <option value="floor" {{ $ReportSwitchs->location_type == 'floor' ? 'selected' : '' }}>Floor
                         </option>
@@ -24,8 +27,8 @@
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
-                            <option value="{{ $building->name }}"
-                                {{ $ReportSwitchs->location == $building->name ? 'selected' : '' }}>
+                            <option value="{{ $building->id }}" data-name="{{ $building->name }}"
+                                {{ $ReportSwitchs->location_id == $building->id ? 'selected' : '' }}>
                                 {{ $building->name }}
                             </option>
                         @endforeach
@@ -37,15 +40,13 @@
                     <label for="floor_location">Floor</label>
                     <select class="form-select" id="floor_location" name="floor_location">
                         @foreach ($floors as $floor)
-                            <option value="{{ $floor->name }}"
-                                {{ $ReportSwitchs->location == $floor->name ? 'selected' : '' }}>
+                            <option value="{{ $floor->id }}" data-name="{{ $floor->name }}"
+                                {{ $ReportSwitchs->location_id == $floor->id ? 'selected' : '' }}>
                                 {{ $floor->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-
-                <input type="hidden" id="location" name="location" value="{{ $ReportSwitchs->location }}">
             </div>
 
             <div class="form-section">
@@ -169,28 +170,29 @@
             var locationType = document.getElementById('location_type');
             var buildingForm = document.getElementById('buildingForm');
             var floorForm = document.getElementById('floorForm');
-            var locationHidden = document.getElementById('location');
+            var locationIdInput = document.getElementById('location_id');
 
-            locationType.addEventListener('change', function() {
+            function updateLocation() {
                 buildingForm.style.display = 'none';
                 floorForm.style.display = 'none';
 
-                switch (this.value) {
-                    case 'building':
-                        buildingForm.style.display = 'block';
-                        break;
-                    case 'floor':
-                        floorForm.style.display = 'block';
-                        break;
+                var selectedOption;
+                if (locationType.value === 'building') {
+                    buildingForm.style.display = 'block';
+                    selectedOption = document.getElementById('building_location').selectedOptions[0];
+                } else {
+                    floorForm.style.display = 'block';
+                    selectedOption = document.getElementById('floor_location').selectedOptions[0];
                 }
-            });
+                locationIdInput.value = selectedOption.value;
+            }
 
-            document.querySelector('form').addEventListener('submit', function(e) {
-                var selectedLocation = locationType.value === 'building' ?
-                    document.getElementById('building_location').value :
-                    document.getElementById('floor_location').value;
-                locationHidden.value = selectedLocation;
-            });
+            locationType.addEventListener('change', updateLocation);
+            document.getElementById('building_location').addEventListener('change', updateLocation);
+            document.getElementById('floor_location').addEventListener('change', updateLocation);
+
+            // Initial update
+            updateLocation();
         });
     </script>
 @endsection

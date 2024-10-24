@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Ehcm_server extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'server_temp',
+        'ups_temp',
+        'ups_battery',
+        'ups_time'
+    ];
 }

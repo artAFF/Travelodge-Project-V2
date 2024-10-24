@@ -18,12 +18,13 @@
                     </select>
                 </div>
 
+                <input type="hidden" id="location_id" name="location_id">
+
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
                         <option value="building">Building</option>
                         <option value="floor">Floor</option>
-                        <option value="facility">Facility</option>
                     </select>
                 </div>
 
@@ -31,7 +32,7 @@
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
-                            <option value="{{ $building->name }}">{{ $building->name }}</option>
+                            <option value="{{ $building->id }}" data-id="{{ $building->id }}">{{ $building->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -40,7 +41,7 @@
                     <label for="floor_location">Floor</label>
                     <select class="form-select" id="floor_location" name="floor_location">
                         @foreach ($floors as $floor)
-                            <option value="{{ $floor->name }}">{{ $floor->name }}</option>
+                            <option value="{{ $floor->id }}" data-id="{{ $floor->id }}">{{ $floor->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -190,29 +191,36 @@
             var locationType = document.getElementById('location_type');
             var buildingForm = document.getElementById('buildingForm');
             var floorForm = document.getElementById('floorForm');
-            var locationHidden = document.getElementById('location');
+            var locationIdInput = document.getElementById('location_id');
+            var buildingSelect = document.getElementById('building_location');
+            var floorSelect = document.getElementById('floor_location');
+
+            function updateLocationId() {
+                var selectedOption;
+                if (locationType.value === 'building') {
+                    selectedOption = buildingSelect.options[buildingSelect.selectedIndex];
+                } else {
+                    selectedOption = floorSelect.options[floorSelect.selectedIndex];
+                }
+                if (selectedOption && selectedOption.dataset && selectedOption.dataset.id) {
+                    locationIdInput.value = selectedOption.dataset.id;
+                } else {
+                    locationIdInput.value = ''; // หรือค่าเริ่มต้นอื่นๆ ตามที่คุณต้องการ
+                }
+                console.log('Updated location_id:', locationIdInput.value); // เพิ่ม log เพื่อตรวจสอบ
+            }
 
             locationType.addEventListener('change', function() {
-                buildingForm.classList.add('hidden');
-                facilityForm.classList.add('hidden');
-                floorForm.classList.add('hidden');
-
-                switch (this.value) {
-                    case 'building':
-                        buildingForm.classList.remove('hidden');
-                        break;
-                    case 'floor':
-                        floorForm.classList.remove('hidden');
-                        break;
-                }
+                buildingForm.classList.toggle('hidden', this.value !== 'building');
+                floorForm.classList.toggle('hidden', this.value !== 'floor');
+                updateLocationId();
             });
 
-            document.querySelector('form').addEventListener('submit', function(e) {
-                var selectedLocation = locationType.value === 'building' ?
-                    document.getElementById('building_location').value :
-                    document.getElementById('floor_location').value;
-                locationHidden.value = selectedLocation;
-            });
+            buildingSelect.addEventListener('change', updateLocationId);
+            floorSelect.addEventListener('change', updateLocationId);
+
+            // Initial update
+            updateLocationId();
         });
     </script>
 @endsection

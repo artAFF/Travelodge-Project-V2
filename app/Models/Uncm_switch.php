@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Uncm_switch extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'location_id',
+        'ups_battery',
+        'ups_time',
+        'ups_temp'
+    ];
+
+    public function location()
+    {
+        return $this->belongsTo(location::class);
+    }
 }

@@ -9,6 +9,8 @@
             <div class="form-section">
                 <h2>Internet Checking</h2>
 
+                <input type="hidden" id="location_id" name="location_id" value="{{ $ReportNetSpeeds->location_id }}">
+
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
@@ -24,8 +26,8 @@
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
-                            <option value="{{ $building->name }}"
-                                {{ $ReportNetSpeeds->location == $building->name ? 'selected' : '' }}>
+                            <option value="{{ $building->id }}" data-name="{{ $building->name }}"
+                                {{ $ReportNetSpeeds->location_id == $building->id ? 'selected' : '' }}>
                                 {{ $building->name }}
                             </option>
                         @endforeach
@@ -37,15 +39,13 @@
                     <label for="facility_location">Facility</label>
                     <select class="form-select" id="facility_location" name="facility_location">
                         @foreach ($facilities as $facility)
-                            <option value="{{ $facility->name }}"
-                                {{ $ReportNetSpeeds->location == $facility->name ? 'selected' : '' }}>
+                            <option value="{{ $facility->id }}" data-name="{{ $facility->name }}"
+                                {{ $ReportNetSpeeds->location_id == $facility->id ? 'selected' : '' }}>
                                 {{ $facility->name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-
-                <input type="hidden" id="location" name="location" value="{{ $ReportNetSpeeds->location }}">
             </div>
 
             <div class="form-section">
@@ -159,28 +159,29 @@
             var locationType = document.getElementById('location_type');
             var buildingForm = document.getElementById('buildingForm');
             var facilityForm = document.getElementById('facilityForm');
-            var locationHidden = document.getElementById('location');
+            var locationIdInput = document.getElementById('location_id');
 
-            locationType.addEventListener('change', function() {
+            function updateLocation() {
                 buildingForm.style.display = 'none';
                 facilityForm.style.display = 'none';
 
-                switch (this.value) {
-                    case 'building':
-                        buildingForm.style.display = 'block';
-                        break;
-                    case 'facility':
-                        facilityForm.style.display = 'block';
-                        break;
+                var selectedOption;
+                if (locationType.value === 'building') {
+                    buildingForm.style.display = 'block';
+                    selectedOption = document.getElementById('building_location').selectedOptions[0];
+                } else {
+                    facilityForm.style.display = 'block';
+                    selectedOption = document.getElementById('facility_location').selectedOptions[0];
                 }
-            });
+                locationIdInput.value = selectedOption.value;
+            }
 
-            document.querySelector('form').addEventListener('submit', function(e) {
-                var selectedLocation = locationType.value === 'building' ?
-                    document.getElementById('building_location').value :
-                    document.getElementById('facility_location').value;
-                locationHidden.value = selectedLocation;
-            });
+            locationType.addEventListener('change', updateLocation);
+            document.getElementById('building_location').addEventListener('change', updateLocation);
+            document.getElementById('facility_location').addEventListener('change', updateLocation);
+
+            // Initial update
+            updateLocation();
         });
     </script>
 @endsection

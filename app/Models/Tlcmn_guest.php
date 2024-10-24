@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Tlcmn_guest extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'location_id',
+        'room_no',
+        'download',
+        'upload',
+        'ch_no',
+        'ch_name',
+    ];
+
+    public function location()
+    {
+        return $this->belongsTo(location::class);
+    }
 }

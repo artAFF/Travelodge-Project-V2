@@ -141,6 +141,7 @@ class CreateController extends Controller
 
     public function InsertGuest(Request $request)
     {
+        /* dd($request->all()); */
         $request->validate([
             'room_no' => 'required',
             'upload' => 'required',

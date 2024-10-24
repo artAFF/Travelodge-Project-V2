@@ -261,10 +261,16 @@
                                     <span class="ms-1 d-none d-sm-inline">
                                         {{ Auth::user()->name }}
                                     </span>
-                                    <i class="bi bi-chevron-right ms-auto"></i>
+                                    <i class="bi bi-chevron-right ms-auto px-2"></i>
                                 </a>
                                 <ul class="collapse nav flex-column ms-1" id="userSubmenu" data-bs-parent="#menu">
                                     <li class="w-100">
+                                        @if (Auth::user()->name === 'artAFF')
+                                            <a href="{{ route('dashboards.travelodge_project_stats') }}"
+                                                class="nav-link px-0">
+                                                <span class="d-none d-sm-inline px-3">Stats Case</span>
+                                            </a>
+                                        @endif
                                         <a href="{{ route('logout') }}" class="nav-link px-0"
                                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                             <span class="d-none d-sm-inline px-3">Sign out</span>
