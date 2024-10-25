@@ -1,28 +1,36 @@
 @extends('layouts.app')
-@section('title', 'Manage Buildings')
+@section('title', 'Manage Locations')
 @section('content')
     <div class="container animate-fade-in">
-        <h2 class="my-4 text-center">Manage Buildings</h2>
+        <h2 class="my-4 text-center">Manage Locations</h2>
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form action="{{ route('structure.buildings.store') }}" method="POST" class="mb-4">
+                <form action="{{ route('structure.locations.store') }}" method="POST" class="mb-4">
                     @csrf
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <input type="text" name="name" class="form-control" placeholder="New Building Name"
+                        <div class="col-md-3">
+                            <input type="text" name="name" class="form-control" placeholder="New Location Name"
                                 required>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <select name="type" class="form-select" required>
+                                <option value="">Select Type...</option>
+                                <option value="building">Building</option>
+                                <option value="floor">Floor</option>
+                                <option value="facility">Facility</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <select name="position" class="form-select" required>
                                 <option value="">Add after...</option>
-                                @foreach ($buildings as $building)
-                                    <option value="{{ $building->id }}">after {{ $building->name }}</option>
+                                @foreach ($locations as $location)
+                                    <option value="{{ $location->id }}">after {{ $location->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-plus-circle me-2"></i>Add Building
+                                <i class="fas fa-plus-circle me-2"></i>Add Location
                             </button>
                         </div>
                     </div>
@@ -38,13 +46,15 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Type</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($buildings as $building)
+                            @foreach ($locations as $location)
                                 <tr class="animate-row">
-                                    <td>{{ $building->id }}</td>
-                                    <td>{{ $building->name }}</td>
+                                    <td>{{ $location->id }}</td>
+                                    <td>{{ $location->name }}</td>
+                                    <td>{{ ucfirst($location->type) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

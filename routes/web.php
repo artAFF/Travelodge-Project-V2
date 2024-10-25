@@ -95,8 +95,8 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     Route::delete('/daily/hotels/{type}/deleteNetSpeed/{id}', [DeleteController::class, 'DeleteNetSpeed'])->name('deleteNetSpeed');
 
     // Structure Management Routes
-    Route::get('/structure/buildings', [StructureController::class, 'buildings'])->name('structure.buildings');
-    Route::post('/structure/buildings', [StructureController::class, 'storeBuilding'])->name('structure.buildings.store');
+    Route::get('/structure/locations', [StructureController::class, 'locations'])->name('structure.locations');
+    Route::post('/structure/locations', [StructureController::class, 'storeLocation'])->name('structure.locations.store');
     Route::get('/structure/categories', [StructureController::class, 'categories'])->name('structure.categories');
     Route::post('/structure/categories', [StructureController::class, 'storeCategory'])->name('structure.categories.store');
     Route::get('/structure/departments', [StructureController::class, 'departments'])->name('structure.departments');

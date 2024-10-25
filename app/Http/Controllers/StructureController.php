@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Building;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\Location;
 use Illuminate\Http\Request;
 
 class StructureController extends Controller
@@ -15,12 +15,12 @@ class StructureController extends Controller
         $this->middleware('auth');
     }
 
-    public function buildings()
+    public function locations()
     {
-        // Retrieve all buildings ordered by id
-        $buildings = Building::orderBy('id')->get();
-        // Return the buildings view with the buildings data
-        return view('structure.buildings', compact('buildings'));
+        // Retrieve all locations ordered by id
+        $locations = Location::orderBy('id')->get();
+        // Return the locations view with the locations data
+        return view('structure.locations', compact('locations'));
     }
 
     public function categories()
@@ -39,10 +39,10 @@ class StructureController extends Controller
         return view('structure.departments', compact('departments'));
     }
 
-    public function storeBuilding(Request $request)
+    public function storeLocation(Request $request)
     {
-        // Call the generic storeItem method for Building model
-        return $this->storeItem($request, Building::class, 'buildings');
+        // Call the generic storeItem method for Location model
+        return $this->storeItem($request, Location::class, 'locations');
     }
 
     public function storeCategory(Request $request)
@@ -60,10 +60,17 @@ class StructureController extends Controller
     private function storeItem(Request $request, $model, $routeName)
     {
         // Validate the incoming request data
-        $request->validate([
+        $validationRules = [
             'name' => 'required|string|max:255',
             'position' => 'required|string'
-        ]);
+        ];
+
+        // Add type validation only for Location model
+        if ($model === Location::class) {
+            $validationRules['type'] = 'required|string|in:building,room,area';
+        }
+
+        $request->validate($validationRules);
 
         $newItem = $request->name;
         $afterItemId = $request->position;
@@ -79,16 +86,25 @@ class StructureController extends Controller
             ->orderBy('id', 'desc')
             ->increment('id');
 
-        // Create the new item at the determined position
-        $model::create([
+        // Prepare data for creation
+        $data = [
             'id' => $insertPosition,
             'name' => $newItem
-        ]);
+        ];
 
-        // Get the lowercase name of the model (e.g., 'building', 'category', 'department')
+        // Add type only for Location model
+        if ($model === Location::class) {
+            $data['type'] = $request->type;
+        }
+
+        // Create the new item at the determined position
+        $model::create($data);
+
+        // Get the lowercase name of the model
         $itemName = strtolower(class_basename($model));
 
         // Redirect to the appropriate route with a success message
-        return redirect()->route("structure.{$routeName}")->with('success', ucfirst($itemName) . ' added successfully.');
+        return redirect()->route("structure.{$routeName}")
+            ->with('success', ucfirst($itemName) . ' added successfully.');
     }
 }

@@ -232,8 +232,8 @@
                                     </a>
                                     <ul class="collapse nav flex-column ms-1" id="submenu3" data-bs-parent="#menu">
                                         <li class="w-100">
-                                            <a href="{{ route('structure.buildings') }}" class="nav-link px-0">
-                                                <span class="d-none d-sm-inline px-3">Buildings</span>
+                                            <a href="{{ route('structure.locations') }}" class="nav-link px-0">
+                                                <span class="d-none d-sm-inline px-3">Locations</span>
                                             </a>
                                         </li>
                                         <li class="w-100">
