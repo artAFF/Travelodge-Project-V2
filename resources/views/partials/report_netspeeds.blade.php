@@ -24,7 +24,7 @@
                         @foreach ($ReportSwitchs as $ReportSwitch)
                             <tr>
                                 <td>{{ $ReportSwitch->id }}</td>
-                                <td>{{ $ReportSwitch->location_name }}</td>
+                                <td>{{ $ReportSwitch->location_name ?? 'N/A' }}</td>
                                 <td>{{ $ReportSwitch->ups_battery }}</td>
                                 <td>{{ $ReportSwitch->ups_time }}</td>
                                 <td>{{ $ReportSwitch->ups_temp }}</td>

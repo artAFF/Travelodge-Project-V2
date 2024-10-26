@@ -204,21 +204,15 @@ class ReadController extends Controller
 
         $ReportGuests = DB::table("{$prefix}guests")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
-            ->select(
-                "{$prefix}guests.*",
-                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
-            )
+            ->select("{$prefix}guests.*", 'locations.name as location_name')
             ->orderBy("{$prefix}guests.id", 'desc')
-            ->paginate(10, ['*'], 'pageGuests', $pageGuests);
+            ->paginate(10, [''], 'pageGuests', $pageGuests);
 
         $ReportSwitchs = DB::table("{$prefix}switches")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}switches.location_id")
-            ->select(
-                "{$prefix}switches.*",
-                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
-            )
+            ->select("{$prefix}switches.*", 'locations.name as location_name')
             ->orderBy("{$prefix}switches.id", 'desc')
-            ->paginate(10, ['*'], 'pageSwitchs', $pageSwitchs);
+            ->paginate(10, [''], 'pageSwitchs', $pageSwitchs);
 
         $ReportServers = DB::table("{$prefix}servers")
             ->orderBy('id', 'desc')
@@ -226,12 +220,9 @@ class ReadController extends Controller
 
         $ReportNetSpeeds = DB::table("{$prefix}nets")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}nets.location_id")
-            ->select(
-                "{$prefix}nets.*",
-                DB::raw("COALESCE(locations.name, 'N/A') as location_name")
-            )
+            ->select("{$prefix}nets.*", 'locations.name as location_name')
             ->orderBy("{$prefix}nets.id", 'desc')
-            ->paginate(10, ['*'], 'pageNetSpeeds', $pageNetSpeeds);
+            ->paginate(10, [''], 'pageNetSpeeds', $pageNetSpeeds);
 
         if ($request->ajax()) {
             return response()->json([
@@ -250,11 +241,11 @@ class ReadController extends Controller
     {
         switch ($type) {
             case 'ehcm':
-                return 'ehcm_';
+                return 'Ehcm_';
             case 'uncm':
-                return 'uncm_';
+                return 'Uncm_';
             default:
-                return 'tlcmn_';
+                return 'Tlcmn_';
         }
     }
 }

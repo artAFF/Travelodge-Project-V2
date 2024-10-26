@@ -14,15 +14,15 @@
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
-                        <option value="building" {{ $ReportNetSpeeds->location_type == 'building' ? 'selected' : '' }}>
+                        <option value="building" {{ $ReportNetSpeeds->location->type == 'building' ? 'selected' : '' }}>
                             Building</option>
-                        <option value="facility" {{ $ReportNetSpeeds->location_type == 'facility' ? 'selected' : '' }}>
+                        <option value="facility" {{ $ReportNetSpeeds->location->type == 'facility' ? 'selected' : '' }}>
                             Facility</option>
                     </select>
                 </div>
 
                 <div class="form-group mb-3" id="buildingForm"
-                    {{ $ReportNetSpeeds->location_type != 'building' ? 'style=display:none;' : '' }}>
+                    {{ $ReportNetSpeeds->location->type != 'building' ? 'style=display:none;' : '' }}>
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="form-group mb-3" id="facilityForm"
-                    {{ $ReportNetSpeeds->location_type != 'facility' ? 'style=display:none;' : '' }}>
+                    {{ $ReportNetSpeeds->location->type != 'facility' ? 'style=display:none;' : '' }}>
                     <label for="facility_location">Facility</label>
                     <select class="form-select" id="facility_location" name="facility_location">
                         @foreach ($facilities as $facility)
@@ -180,7 +180,7 @@
             document.getElementById('building_location').addEventListener('change', updateLocation);
             document.getElementById('facility_location').addEventListener('change', updateLocation);
 
-            // Initial update
+            // Set initial state based on database value
             updateLocation();
         });
     </script>

@@ -23,7 +23,7 @@
                         @foreach ($ReportNetSpeeds as $ReportNetSpeed)
                             <tr>
                                 <td>{{ $ReportNetSpeed->id }}</td>
-                                <td>{{ $ReportNetSpeed->location_name }}</td>
+                                <td>{{ $ReportNetSpeed->location_name ?? 'N/A' }}</td>
                                 <td>{{ $ReportNetSpeed->download }}</td>
                                 <td>{{ $ReportNetSpeed->upload }}</td>
                                 <td>{{ \Carbon\Carbon::parse($ReportNetSpeed->created_at)->format('d/m/Y H:i:s') }}</td>

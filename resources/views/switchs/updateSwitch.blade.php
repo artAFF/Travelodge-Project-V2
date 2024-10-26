@@ -14,16 +14,17 @@
                 <div class="form-group mb-3">
                     <label for="location_type">Location Type</label>
                     <select class="form-select" id="location_type" name="location_type">
-                        <option value="building" {{ $ReportSwitchs->location_type == 'building' ? 'selected' : '' }}>
+                        <option value="building" {{ $ReportSwitchs->location->type == 'building' ? 'selected' : '' }}>
                             Building
                         </option>
-                        <option value="floor" {{ $ReportSwitchs->location_type == 'floor' ? 'selected' : '' }}>Floor
+                        <option value="floor" {{ $ReportSwitchs->location->type == 'floor' ? 'selected' : '' }}>
+                            Floor
                         </option>
                     </select>
                 </div>
 
                 <div class="form-group mb-3" id="buildingForm"
-                    {{ $ReportSwitchs->location_type != 'building' ? 'style=display:none;' : '' }}>
+                    {{ $ReportSwitchs->location->type != 'building' ? 'style=display:none;' : '' }}>
                     <label for="building_location">Building</label>
                     <select class="form-select" id="building_location" name="building_location">
                         @foreach ($buildings as $building)
@@ -36,7 +37,7 @@
                 </div>
 
                 <div class="form-group mb-3" id="floorForm"
-                    {{ $ReportSwitchs->location_type != 'floor' ? 'style=display:none;' : '' }}>
+                    {{ $ReportSwitchs->location->type != 'floor' ? 'style=display:none;' : '' }}>
                     <label for="floor_location">Floor</label>
                     <select class="form-select" id="floor_location" name="floor_location">
                         @foreach ($floors as $floor)
@@ -191,7 +192,7 @@
             document.getElementById('building_location').addEventListener('change', updateLocation);
             document.getElementById('floor_location').addEventListener('change', updateLocation);
 
-            // Initial update
+            // Set initial state based on database value
             updateLocation();
         });
     </script>

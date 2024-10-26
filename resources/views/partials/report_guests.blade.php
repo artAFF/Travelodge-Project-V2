@@ -26,7 +26,7 @@
                         @foreach ($ReportGuests as $ReportGuest)
                             <tr>
                                 <td>{{ $ReportGuest->id }}</td>
-                                <td>{{ $ReportGuest->location_name }}</td>
+                                <td>{{ $ReportGuest->location_name ?? 'N/A' }}</td>
                                 <td>{{ $ReportGuest->room_no }}</td>
                                 <td>{{ $ReportGuest->download }}</td>
                                 <td>{{ $ReportGuest->upload }}</td>
