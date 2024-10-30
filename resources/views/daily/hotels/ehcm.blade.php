@@ -28,7 +28,6 @@
                             data.ReportServers +
                             data.ReportNetSpeeds
                         ).fadeIn(300);
-                        initializeAnimations();
                     });
                 }
             });
@@ -42,48 +41,8 @@
             }
             loadPage(url);
         });
-
-        function initializeAnimations() {
-            $('.animate-slide-up').each(function(index) {
-                $(this).css({
-                    'animation-delay': `${index * 0.1}s`
-                });
-            });
-        }
-
-        $(document).ready(function() {
-            initializeAnimations();
-        });
     </script>
-
     <style>
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .card {
             transition: all 0.3s ease;
             margin-bottom: 20px;

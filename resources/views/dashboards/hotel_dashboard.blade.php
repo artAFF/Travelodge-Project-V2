@@ -3,7 +3,6 @@
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -178,7 +177,7 @@
 
     <div class="row">
         <div class="row">
-            <div class="col-md-12 animate__animated animate__fadeInLeft">
+            <div class="col-md-12">
                 <h2 class="text-center">Comparison Chart</h2>
                 <div class="chart-container" style="height: 400px; width: 100%;">
                     <canvas id='mainChart'></canvas>
@@ -188,7 +187,7 @@
     </div>
 
     <div class="row mt-4">
-        <div class="col-12 animate__animated animate__fadeInUp">
+        <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title text-center mb-4"><span id="reportTitle"></span> Reports</h3>
@@ -274,10 +273,6 @@
                             beginAtZero: true
                         }
                     },
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    },
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const index = elements[0].index;
@@ -323,14 +318,6 @@
 
             document.getElementById('reportTitle').textContent = currentView.charAt(0).toUpperCase() + currentView.slice(1);
 
-            anime({
-                targets: '#reportCards .card',
-                opacity: [0, 1],
-                translateY: [50, 0],
-                delay: anime.stagger(100),
-                duration: 800,
-                easing: 'easeOutQuad'
-            });
         }
 
         function updateChartsWithDateFilter() {

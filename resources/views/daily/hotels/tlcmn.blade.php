@@ -2,15 +2,13 @@
 @section('title', 'Daily Report TLCMN')
 
 @section('content')
-    <div class="container animate-fade-in">
-        <h1 class="text-center my-4">Daily Report for {{ strtoupper($source) }}</h1>
+    <h1 class="text-center my-4">Daily Report for {{ strtoupper($source) }}</h1>
 
-        <div id="report-content">
-            @include('partials.report_guests')
-            @include('partials.report_switchs')
-            @include('partials.report_servers')
-            @include('partials.report_netspeeds')
-        </div>
+    <div id="report-content">
+        @include('partials.report_guests')
+        @include('partials.report_switchs')
+        @include('partials.report_servers')
+        @include('partials.report_netspeeds')
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -28,7 +26,6 @@
                             data.ReportServers +
                             data.ReportNetSpeeds
                         ).fadeIn(300);
-                        initializeAnimations();
                     });
                 }
             });
@@ -42,48 +39,8 @@
             }
             loadPage(url);
         });
-
-        function initializeAnimations() {
-            $('.animate-slide-up').each(function(index) {
-                $(this).css({
-                    'animation-delay': `${index * 0.1}s`
-                });
-            });
-        }
-
-        $(document).ready(function() {
-            initializeAnimations();
-        });
     </script>
-
     <style>
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .card {
             transition: all 0.3s ease;
             margin-bottom: 20px;

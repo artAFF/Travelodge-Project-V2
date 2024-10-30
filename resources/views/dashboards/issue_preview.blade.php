@@ -1,9 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Issue Preview')
 @section('content')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-
     <style>
         .table th,
         .table td {
@@ -22,17 +19,9 @@
             transform: translateY(-2px);
             box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
         }
-
-        #previewTitle {
-            transition: all 0.3s ease;
-        }
-
-        #previewTitle:hover {
-            transform: scale(1.05);
-        }
     </style>
 
-    <div class="container mt-4 animate__animated animate__fadeIn">
+    <div class="container mt-1">
         <h3 id="previewTitle" class="text-center mb-4"></h3>
         <div class="table-responsive">
             <table class="table table-hover">
@@ -99,9 +88,9 @@
             const tableBody = $('#previewTableBody');
             tableBody.empty();
 
-            issues.forEach((issue, index) => {
+            issues.forEach((issue) => {
                 const row = $(`
-                    <tr class="animate__animated animate__fadeInUp" style="animation-delay: ${index * 0.05}s">
+                    <tr>
                         <td class="text-center">${issue.id}</td>
                         <td class="text-center">${issue.category?.name || 'N/A'}</td>
                         <td class="text-center">${issue.detail || 'N/A'}</td>
@@ -125,7 +114,7 @@
             if (response.last_page > 1) {
                 if (response.current_page > 1) {
                     pagination.append(`
-                        <button class="btn btn-sm btn-outline-primary m-1 animate__animated animate__fadeIn" onclick="loadIssues(${response.current_page - 1})">
+                        <button class="btn btn-sm btn-outline-primary m-1" onclick="loadIssues(${response.current_page - 1})">
                             Previous
                         </button>
                     `);
@@ -136,8 +125,7 @@
 
                 for (let i = startPage; i <= endPage; i++) {
                     pagination.append(`
-                        <button class="btn btn-sm btn-outline-primary m-1 ${i === response.current_page ? 'active' : ''} animate__animated animate__fadeIn"
-                                style="animation-delay: ${(i - startPage) * 0.1}s"
+                        <button class="btn btn-sm btn-outline-primary m-1 ${i === response.current_page ? 'active' : ''}"
                                 onclick="loadIssues(${i})">
                             ${i}
                         </button>
@@ -146,7 +134,7 @@
 
                 if (response.current_page < response.last_page) {
                     pagination.append(`
-                        <button class="btn btn-sm btn-outline-primary m-1 animate__animated animate__fadeIn" onclick="loadIssues(${response.current_page + 1})">
+                        <button class="btn btn-sm btn-outline-primary m-1" onclick="loadIssues(${response.current_page + 1})">
                             Next
                         </button>
                     `);
@@ -184,25 +172,6 @@
 
         $(document).ready(function() {
             loadIssues();
-
-            // Add hover animation to table rows
-            $(document).on('mouseenter', '#previewTableBody tr', function() {
-                anime({
-                    targets: this,
-                    backgroundColor: 'rgba(0,123,255,0.1)',
-                    scale: 1.02,
-                    duration: 300,
-                    easing: 'easeOutQuad'
-                });
-            }).on('mouseleave', '#previewTableBody tr', function() {
-                anime({
-                    targets: this,
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    scale: 1,
-                    duration: 300,
-                    easing: 'easeOutQuad'
-                });
-            });
         });
     </script>
 @endsection

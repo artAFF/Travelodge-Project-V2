@@ -1,4 +1,4 @@
-<div class="card shadow-sm animate-slide-up">
+<div class="card shadow-sm">
     <div class="card-header bg-info text-white">
         <h2 class="mb-0">Internet Checking Report</h2>
     </div>
