@@ -197,32 +197,31 @@ class ReadController extends Controller
         $prefix = $this->getPrefixFromType($type);
         $source = $type;
 
-        $pageGuests = $request->input('pageGuests', 1);
-        $pageSwitchs = $request->input('pageSwitchs', 1);
-        $pageServers = $request->input('pageServers', 1);
-        $pageNetSpeeds = $request->input('pageNetSpeeds', 1);
-
         $ReportGuests = DB::table("{$prefix}guests")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
             ->select("{$prefix}guests.*", 'locations.name as location_name')
             ->orderBy("{$prefix}guests.id", 'desc')
-            ->paginate(10, [''], 'pageGuests', $pageGuests);
+            ->take(10)
+            ->get();
 
         $ReportSwitchs = DB::table("{$prefix}switches")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}switches.location_id")
             ->select("{$prefix}switches.*", 'locations.name as location_name')
             ->orderBy("{$prefix}switches.id", 'desc')
-            ->paginate(10, [''], 'pageSwitchs', $pageSwitchs);
+            ->take(10)
+            ->get();
 
         $ReportServers = DB::table("{$prefix}servers")
             ->orderBy('id', 'desc')
-            ->paginate(10, ['*'], 'pageServers', $pageServers);
+            ->take(10)
+            ->get();
 
         $ReportNetSpeeds = DB::table("{$prefix}nets")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}nets.location_id")
             ->select("{$prefix}nets.*", 'locations.name as location_name')
             ->orderBy("{$prefix}nets.id", 'desc')
-            ->paginate(10, [''], 'pageNetSpeeds', $pageNetSpeeds);
+            ->take(10)
+            ->get();
 
         if ($request->ajax()) {
             return response()->json([

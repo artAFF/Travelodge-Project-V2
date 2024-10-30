@@ -50,9 +50,6 @@
                     </tbody>
                 </table>
             </div>
-            <div class="justify-content-center">
-                {{ $ReportServers->links() }}
-            </div>
         @else
             <div class="alert alert-info">
                 No data found. <a href="{{ route('addServer', ['type' => $source]) }}"

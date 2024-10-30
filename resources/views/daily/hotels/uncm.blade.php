@@ -10,36 +10,6 @@
         @include('partials.report_servers')
         @include('partials.report_netspeeds')
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script>
-        function loadPage(url) {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    $('#report-content').fadeOut(300, function() {
-                        $(this).empty().html(
-                            data.ReportGuests +
-                            data.ReportSwitchs +
-                            data.ReportServers +
-                            data.ReportNetSpeeds
-                        ).fadeIn(300);
-                    });
-                }
-            });
-        }
-
-        $(document).on('click', '.pagination a', function(event) {
-            event.preventDefault();
-            let url = $(this).attr('href');
-            if (url.indexOf('type=') === -1) {
-                url += (url.indexOf('?') === -1 ? '?' : '&') + 'type={{ $source }}';
-            }
-            loadPage(url);
-        });
-    </script>
     <style>
         .card {
             transition: all 0.3s ease;
