@@ -115,6 +115,13 @@
 
         function addIssueForm() {
             const issueFormsContainer = document.getElementById('issueFormsContainer');
+
+            // เช็คว่ามีจำนวน form ครบ 5 อันหรือยัง
+            if (issueFormsContainer.children.length >= 5) {
+                document.getElementById('addIssueButton').disabled = true;
+                return;
+            }
+
             const newIssueForm = issueFormsContainer.firstElementChild.cloneNode(true);
 
             newIssueForm.querySelector('.issue-title').textContent = `Issue #${issueIndex + 1}`;
@@ -165,7 +172,11 @@
 
         function checkRemoveButtonState() {
             const issueFormsContainer = document.getElementById('issueFormsContainer');
-            document.getElementById('removeIssueButton').disabled = issueFormsContainer.children.length <= 1;
+            const removeButton = document.getElementById('removeIssueButton');
+            const addButton = document.getElementById('addIssueButton');
+
+            removeButton.disabled = issueFormsContainer.children.length <= 1;
+            addButton.disabled = issueFormsContainer.children.length >= 5;
         }
 
         function updateIssueTitles() {
