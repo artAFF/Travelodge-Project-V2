@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Daily Search')
 @section('content')
-    <div class="container animate-fade-in">
+    <div class="container">
         <h1 class="text-center my-4">Search Results</h1>
         <div class="card shadow-sm mb-4">
             <div class="card-body">
@@ -40,8 +40,9 @@
                             </select>
                         </div>
                         <div class="col-md-1">
-                            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search"></i>
-                                Search</button>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Search
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -57,7 +58,7 @@
         @endif
 
         @if ($category == 'all' || $category == 'guest')
-            <div class="card shadow-sm mb-4 animate-slide-up">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2 class="mb-0">Guest Rooms</h2>
                 </div>
@@ -80,7 +81,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($guests as $guest)
-                                        <tr class="animate-row">
+                                        <tr>
                                             <td>{{ $guest->id }}</td>
                                             <td>{{ $guest->location_name }}</td>
                                             <td>{{ $guest->room_no }}</td>
@@ -110,7 +111,7 @@
         @endif
 
         @if ($category == 'all' || $category == 'switch')
-            <div class="card shadow-sm mb-4 animate-slide-up">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-success text-white">
                     <h2 class="mb-0">Switch Room</h2>
                 </div>
@@ -131,7 +132,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($switches as $switch)
-                                        <tr class="animate-row">
+                                        <tr>
                                             <td>{{ $switch->id }}</td>
                                             <td>{{ $switch->location_name }}</td>
                                             <td>{{ $switch->ups_battery }}</td>
@@ -155,7 +156,7 @@
         @endif
 
         @if ($category == 'all' || $category == 'server')
-            <div class="card shadow-sm mb-4 animate-slide-up">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-warning text-dark">
                     <h2 class="mb-0">Server Room</h2>
                 </div>
@@ -176,7 +177,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($servers as $server)
-                                        <tr class="animate-row">
+                                        <tr>
                                             <td>{{ $server->id }}</td>
                                             <td>{{ $server->server_temp }}</td>
                                             <td>{{ $server->ups_temp }}</td>
@@ -200,7 +201,7 @@
         @endif
 
         @if ($category == 'all' || $category == 'internet')
-            <div class="card shadow-sm mb-4 animate-slide-up">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-info text-white">
                     <h2 class="mb-0">Internet Checking</h2>
                 </div>
@@ -220,7 +221,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($netSpeeds as $netSpeed)
-                                        <tr class="animate-row">
+                                        <tr>
                                             <td>{{ $netSpeed->id }}</td>
                                             <td>{{ $netSpeed->location_name }}</td>
                                             <td>{{ $netSpeed->download }}</td>
@@ -243,70 +244,73 @@
         @endif
     </div>
 
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
+    <div id="loading"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 
-        .animate-slide-up {
-            animation: slideUp 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .animate-row {
-            animation: slideIn 0.3s ease-out forwards;
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .card {
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .btn {
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-    </style>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const rows = document.querySelectorAll('.animate-row');
-            rows.forEach((row, index) => {
-                row.style.animationDelay = `${index * 0.05}s`;
+        $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'GET',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        let content = $(response).find('.container').html();
+                        $('.container').html(content);
+                        window.history.pushState({}, '', '?' + $('form').serialize());
+                    }
+                });
+            });
+
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: $(this).attr('href'),
+                    type: 'GET',
+                    success: function(response) {
+                        let content = $(response).find('.container').html();
+                        $('.container').html(content);
+                        window.history.pushState({}, '', $(this).attr('href'));
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-success', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: $(this).attr('href'),
+                    type: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function(response) {
+                        const blob = new Blob([response], {
+                            type: 'application/pdf'
+                        });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'daily_report.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    }
+                });
+            });
+
+            $(document).ajaxStart(function() {
+                $('#loading').show();
+            }).ajaxComplete(function() {
+                $('#loading').hide();
             });
         });
     </script>

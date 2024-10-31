@@ -147,6 +147,11 @@ class PdfController extends Controller
         // Store search results in session
         $request->session()->put('searchResults', $searchResults);
 
+
+        if ($request->ajax()) {
+            return view('/daily/search', $searchResults)->render();
+        }
+
         // Return search results view
         return view('/daily/search', $searchResults);
     }

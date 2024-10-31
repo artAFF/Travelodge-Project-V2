@@ -101,7 +101,7 @@
         <button type="button" id="addIssueButton" class="btn btn-warning"><i class="bi bi-plus-circle"></i></button>
         <button type="button" id="removeIssueButton" class="btn btn-danger"><i class="bi bi-dash-circle"></i></button>
         <button type="submit" class="btn btn-primary">Submit</button>
-        <a href="/reports/reportIssue" class="btn btn-secondary">Cancel</a>
+        <a href="{{ session('previous_url', '/reports/reportIssue') }}" class="btn btn-secondary">Cancel</a>
     </form>
 
     <script>

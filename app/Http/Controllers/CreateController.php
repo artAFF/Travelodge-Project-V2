@@ -37,6 +37,8 @@ class CreateController extends Controller
 
     public function AddReportIssue()
     {
+        session(['previous_url' => url()->previous()]);
+
         // Fetch all categories and departments
         $categories = Category::all();
         $departments = Department::all();
@@ -90,7 +92,7 @@ class CreateController extends Controller
             $this->sendLineNotification($travelodge, $issueData);
         }
 
-        return redirect('/reports/reportIssue');
+        return redirect(session('previous_url', '/reports/reportIssue'));
     }
 
     private function sendLineNotification($travelodge, $issueData)

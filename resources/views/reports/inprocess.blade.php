@@ -19,6 +19,7 @@
                 </div>
                 <div class="col-md-auto ms-md-3">
                     <button id="captureAndSendBtn" class="btn btn-primary">Capture and Send to Line</button>
+                    <a href="/reports/addIssue" class="btn btn-primary">Add Issue</a>
                 </div>
             </div>
         </div>
