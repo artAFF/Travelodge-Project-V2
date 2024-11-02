@@ -8,17 +8,9 @@
                 <form action="{{ route('structure.categories.store') }}" method="POST" class="mb-4">
                     @csrf
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <input type="text" name="name" class="form-control" placeholder="New Category Name"
                                 required>
-                        </div>
-                        <div class="col-md-4">
-                            <select name="position" class="form-select" required>
-                                <option value="">Add after...</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">after {{ $category->name }}</option>
-                                @endforeach
-                            </select>
                         </div>
                         <div class="col-md-4">
                             <button type="submit" class="btn btn-primary w-100">

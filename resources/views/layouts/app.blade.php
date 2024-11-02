@@ -239,7 +239,7 @@
                                         </li>
                                         <li class="w-100">
                                             <a href="{{ route('structure.categories') }}" class="nav-link px-0">
-                                                <span class="d-none d-sm-inline px-3">Categories Issues</span>
+                                                <span class="d-none d-sm-inline px-3">Categories</span>
                                             </a>
                                         </li>
                                         <li>

@@ -8,17 +8,9 @@
                 <form action="{{ route('structure.departments.store') }}" method="POST" class="mb-4">
                     @csrf
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <input type="text" name="name" class="form-control" placeholder="New Department Name"
                                 required>
-                        </div>
-                        <div class="col-md-4">
-                            <select name="position" class="form-select" required>
-                                <option value="">Add after...</option>
-                                @foreach ($departments as $department)
-                                    <option value="{{ $department->id }}">after {{ $department->name }}</option>
-                                @endforeach
-                            </select>
                         </div>
                         <div class="col-md-4">
                             <button type="submit" class="btn btn-primary w-100">

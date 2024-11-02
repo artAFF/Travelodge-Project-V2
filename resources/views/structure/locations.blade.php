@@ -8,24 +8,16 @@
                 <form action="{{ route('structure.locations.store') }}" method="POST" class="mb-4">
                     @csrf
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-5">
                             <input type="text" name="name" class="form-control" placeholder="New Location Name"
                                 required>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <select name="type" class="form-select" required>
                                 <option value="">Select Type...</option>
                                 <option value="building">Building</option>
                                 <option value="floor">Floor</option>
                                 <option value="facility">Facility</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="position" class="form-select" required>
-                                <option value="">Add after...</option>
-                                @foreach ($locations as $location)
-                                    <option value="{{ $location->id }}">after {{ $location->name }}</option>
-                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-3">

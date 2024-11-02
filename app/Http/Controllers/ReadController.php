@@ -197,31 +197,28 @@ class ReadController extends Controller
         $prefix = $this->getPrefixFromType($type);
         $source = $type;
 
+        // เปลี่ยนจาก take(10) เป็น paginate(10)
         $ReportGuests = DB::table("{$prefix}guests")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
             ->select("{$prefix}guests.*", 'locations.name as location_name')
             ->orderBy("{$prefix}guests.id", 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'guests_page');
 
         $ReportSwitchs = DB::table("{$prefix}switches")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}switches.location_id")
             ->select("{$prefix}switches.*", 'locations.name as location_name')
             ->orderBy("{$prefix}switches.id", 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'switches_page');
 
         $ReportServers = DB::table("{$prefix}servers")
             ->orderBy('id', 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'servers_page');
 
         $ReportNetSpeeds = DB::table("{$prefix}nets")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}nets.location_id")
             ->select("{$prefix}nets.*", 'locations.name as location_name')
             ->orderBy("{$prefix}nets.id", 'desc')
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'netspeeds_page');
 
         if ($request->ajax()) {
             return response()->json([
@@ -229,7 +226,6 @@ class ReadController extends Controller
                 'ReportNetSpeeds' => view('partials.report_netspeeds', compact('ReportNetSpeeds', 'source'))->render(),
                 'ReportSwitchs' => view('partials.report_switchs', compact('ReportSwitchs', 'source'))->render(),
                 'ReportServers' => view('partials.report_servers', compact('ReportServers', 'source'))->render(),
-
             ]);
         }
 

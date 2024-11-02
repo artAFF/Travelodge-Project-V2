@@ -61,35 +61,19 @@ class StructureController extends Controller
     {
         // Validate the incoming request data
         $validationRules = [
-            'name' => 'required|string|max:255',
-            'position' => 'required|string'
+            'name' => 'required|string|max:255'
         ];
 
         // Add type validation only for Location model
         if ($model === Location::class) {
-            $validationRules['type'] = 'required|string|in:building,room,area';
+            $validationRules['type'] = 'required|string|in:building,floor,facility';
         }
 
         $request->validate($validationRules);
 
-        $newItem = $request->name;
-        $afterItemId = $request->position;
-
-        // Get all items of the model, ordered by id
-        $items = $model::orderBy('id')->get();
-
-        // Determine the insert position (after the selected item)
-        $insertPosition = $items->where('id', $afterItemId)->first()->id + 1;
-
-        // Increment the id of all items that come after the insert position
-        $model::where('id', '>=', $insertPosition)
-            ->orderBy('id', 'desc')
-            ->increment('id');
-
         // Prepare data for creation
         $data = [
-            'id' => $insertPosition,
-            'name' => $newItem
+            'name' => $request->name
         ];
 
         // Add type only for Location model
@@ -97,7 +81,7 @@ class StructureController extends Controller
             $data['type'] = $request->type;
         }
 
-        // Create the new item at the determined position
+        // Create the new item
         $model::create($data);
 
         // Get the lowercase name of the model
