@@ -99,7 +99,9 @@ class ReadController extends Controller
 
     public function sendToLineImage(Request $request)
     {
-        $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
+        // ย้าย token ไปอ่านจาก .env
+        $lineAccessToken = env('LINE_NOTIFY_TOKEN');
+        $discordWebhook = env('DISCORD_WEBHOOK_URL');
 
         if (!$request->hasFile('image')) {
             return response()->json(['success' => false, 'message' => 'No image file found'], 400);
@@ -107,20 +109,32 @@ class ReadController extends Controller
 
         $image = $request->file('image');
 
-        $response = Http::attach(
+        // ส่งไปที่ Line
+        $lineResponse = Http::attach(
             'imageFile',
             file_get_contents($image),
             'table_capture.png'
         )->withHeaders([
-            'Authorization' => 'Bearer ' . $accessToken,
+            'Authorization' => 'Bearer ' . $lineAccessToken,
         ])->post('https://notify-api.line.me/api/notify', [
             'message' => 'Table Capture',
         ]);
 
-        if ($response->successful()) {
+        // ส่งไปที่ Discord
+        $discordResponse = Http::attach(
+            'file',
+            file_get_contents($image),
+            'table_capture.png'
+        )->post($discordWebhook);
+
+        if ($lineResponse->successful() && $discordResponse->successful()) {
             return response()->json(['success' => true]);
         } else {
-            return response()->json(['success' => false], 500);
+            return response()->json([
+                'success' => false,
+                'line_status' => $lineResponse->status(),
+                'discord_status' => $discordResponse->status()
+            ], 500);
         }
     }
 

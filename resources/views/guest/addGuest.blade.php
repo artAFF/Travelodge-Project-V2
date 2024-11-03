@@ -205,9 +205,9 @@
                 if (selectedOption && selectedOption.dataset && selectedOption.dataset.id) {
                     locationIdInput.value = selectedOption.dataset.id;
                 } else {
-                    locationIdInput.value = ''; // หรือค่าเริ่มต้นอื่นๆ ตามที่คุณต้องการ
+                    locationIdInput.value = '';
                 }
-                console.log('Updated location_id:', locationIdInput.value); // เพิ่ม log เพื่อตรวจสอบ
+                console.log('Updated location_id:', locationIdInput.value);
             }
 
             locationType.addEventListener('change', function() {

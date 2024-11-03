@@ -88,50 +88,11 @@ class CreateController extends Controller
                 $travelodge->update(['file_path' => $filePath]);
             }
 
-            // Send Line Notification
-            $this->sendLineNotification($travelodge, $issueData);
+            // Send notifications via NotificationController
+            app(NotificationController::class)->sendNewIssueNotifications($travelodge, $issueData);
         }
 
         return redirect(session('previous_url', '/reports/reportIssue'));
-    }
-
-    private function sendLineNotification($travelodge, $issueData)
-    {
-        // Line Notify configuration
-        $accessToken = 'e1GzyiuXMwk1u5gA8MgtsWo1JBxNEvPeU6DCeKMQsab';
-        $messageUrl = 'https://notify-api.line.me/api/notify';
-
-        $client = new \GuzzleHttp\Client();
-
-        // Prepare notification message
-        $message = "New Issue Reported:\n";
-        $message .= "  - Issue Category: " . ($travelodge->category->name ?? 'N/A') . "\n";
-        $message .= "  - Detail: " . $travelodge->detail . "\n";
-        $message .= "  - Remarks: " . ($travelodge->remarks ?? "No remarks") . "\n";
-        $message .= "  - Department: " . ($travelodge->department->name ?? 'N/A') . "\n";
-        $message .= "  - Hotel: " . ($travelodge->hotel->hotel_code ?? 'N/A') . "\n";
-        $message .= "  - Attachment: " . ($travelodge->file_path ? 'Yes' : 'No') . "\n";
-        $message .= "  - Assignee: " . ($travelodge->assignee->name ?? 'Unassigned') . "\n";
-        $message .= "  - Status: " . ($travelodge->status == 0 ? 'In-progress' : 'Done');
-
-        // Send notification
-        try {
-            $response = $client->post($messageUrl, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                ],
-                'form_params' => [
-                    'message' => $message,
-                ],
-            ]);
-
-            if ($response->getStatusCode() !== 200) {
-                // Log error if needed
-            }
-        } catch (\Exception $e) {
-            // Log exception if needed
-        }
     }
 
     public function AddGuest($type)
