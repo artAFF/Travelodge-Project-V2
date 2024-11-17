@@ -66,6 +66,7 @@ class ReadController extends Controller
         $query = $request->input('query');
         $sort_by = $request->input('sort_by', 'id');
         $sort_order = $request->input('sort_order', 'asc');
+        $hotel_filter = $request->input('hotel_filter');
         $user = auth()->user();
 
         $in_process = Travelodge::with(['category', 'department', 'assignee', 'hotel'])
@@ -83,12 +84,22 @@ class ReadController extends Controller
                         });
                 });
             })
+            ->when($hotel_filter, function ($q) use ($hotel_filter) {
+                $q->whereHas('hotel', function ($query) use ($hotel_filter) {
+                    $query->where('hotel_code', $hotel_filter);
+                });
+            })
             ->when($user->role !== 'admin', function ($q) use ($user) {
                 $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(20)
-            ->appends(['query' => $query, 'sort_by' => $sort_by, 'sort_order' => $sort_order]);
+            ->appends([
+                'query' => $query,
+                'sort_by' => $sort_by,
+                'sort_order' => $sort_order,
+                'hotel_filter' => $hotel_filter
+            ]);
 
         $itSupportUsers = User::whereHas('department', function ($query) {
             $query->where('name', 'IT Support');

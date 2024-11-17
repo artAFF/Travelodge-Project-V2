@@ -6,18 +6,26 @@
         <div class="container">
             <h3 class="text-center mb-4">Issues in the process</h3>
             <div class="row align-items-center justify-content-start">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <form action="{{ route('inprocess') }}" method="GET">
                         <div class="input-group">
                             <input type="text" name="query" class="form-control" placeholder="Search"
                                 value="{{ request('query') }}">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-info">Search</button>
-                            </div>
                         </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="hotel_filter" class="form-select">
+                        <option value="">All Hotels</option>
+                        <option value="tlcmn" {{ request('hotel_filter') == 'tlcmn' ? 'selected' : '' }}>TLCMN</option>
+                        <option value="ehcm" {{ request('hotel_filter') == 'ehcm' ? 'selected' : '' }}>EHCM</option>
+                        <option value="uncm" {{ request('hotel_filter') == 'uncm' ? 'selected' : '' }}>UNCM</option>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-info">Search</button>
                     </form>
                 </div>
-                <div class="col-md-auto ms-md-3">
+                <div class="col-md-auto">
                     <button id="captureAndSendBtn" class="btn btn-primary">Capture and Send to Line</button>
                     <a href="/reports/addIssue" class="btn btn-primary">Add Issue</a>
                 </div>
@@ -99,7 +107,8 @@
             {{ $in_process->links() }}
         </div>
     @else
-        <h1 class="text text-center py-5">No data found</h1>
+        <h1 class="text text-center py-5">No data found <a href="/reports/addIssue" class="btn btn-primary">Add Issue</a>
+        </h1>
     @endif
 
     <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
