@@ -42,7 +42,7 @@
 
                 <div class="mb-3" id="remarksContainer_0" style="display: none;">
                     <label for="remarks" class="form-label">Remarks</label>
-                    <textarea class="form-control" id="remarks_0" name="issues[0][remarks]" rows="2"></textarea>
+                    <textarea class="form-control" id="remarks_0" name="issues[0][remarks]" rows="5"></textarea>
                 </div>
 
                 <div class="mb-3">

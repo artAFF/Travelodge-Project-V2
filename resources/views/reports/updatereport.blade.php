@@ -44,7 +44,7 @@
 
         <div class="mb-3" id="remarksContainer" style="display: {{ $ReportIssues->remarks ? 'block' : 'none' }};">
             <label for="remarks" class="form-label">Remarks</label>
-            <textarea class="form-control" id="remarks" name="remarks" rows="2">{{ $ReportIssues->remarks }}</textarea>
+            <textarea class="form-control" id="remarks" name="remarks" rows="5">{{ $ReportIssues->remarks }}</textarea>
         </div>
 
 
