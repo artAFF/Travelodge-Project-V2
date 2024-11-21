@@ -1,28 +1,22 @@
 <div class="report-details">
-    <div class="row">
-        <div class="col-md-6">
-            <p><strong>ID:</strong> {{ $report->id }}</p>
-            <p><strong>Detail:</strong> {{ $report->detail }}</p>
-            <p><strong>Department:</strong> {{ $report->department->name ?? 'N/A' }}</p>
-            <p><strong>Assignee:</strong> {{ $report->assignee->name ?? 'N/A' }}</p>
-        </div>
-        <div class="col-md-6">
-            <p><strong>Issue:</strong> {{ $report->category->name ?? 'N/A' }}</p>
-            <p><strong>Remarks:</strong>
-                @if ($report->remarks)
-                    {{ $report->remarks }}
-                @else
-                    No Remarks
-                @endif
-            </p>
-            <p><strong>Hotel:</strong> {{ $report->hotel->hotel_code ?? 'N/A' }}</p>
-            <p><strong>Status:</strong> {{ $report->status === 0 ? 'In Progress' : 'Done' }}</p>
-        </div>
-    </div>
-
+    <p><strong>ID:</strong> {{ $report->id }}</p>
+    <p><strong>Issue:</strong> {{ $report->category->name ?? 'N/A' }}</p>
+    <p><strong>Detail:</strong> {{ $report->detail }}</p>
+    <p><strong>Remarks:</strong>
+        @if ($report->remarks)
+            {!! nl2br(e($report->remarks)) !!}
+        @else
+            No Remarks
+        @endif
+    </p>
+    <p><strong>Department:</strong> {{ $report->department->name ?? 'N/A' }}</p>
+    <p><strong>Hotel:</strong> {{ $report->hotel->hotel_code ?? 'N/A' }}</p>
+    <p><strong>Assignee:</strong> {{ $report->assignee->name ?? 'N/A' }}</p>
+    <p><strong>Status:</strong> {{ $report->status === 0 ? 'In Progress' : 'Done' }}</p>
     <p><strong>Created:</strong> {{ \Carbon\Carbon::parse($report->created_at)->format('l, d F Y H:i:s') }}</p>
     <p><strong>Updated:</strong> {{ \Carbon\Carbon::parse($report->updated_at)->format('l, d F Y H:i:s') }}</p>
 
+    <!-- File Attachment Section -->
     <p>
         <strong>Attached File:</strong>
         @if ($report->file_path)
@@ -41,6 +35,7 @@
         @endif
     </p>
 
+    <!-- File Preview Section -->
     @if ($report->file_path)
         @if (in_array($extension, ['jpg', 'jpeg', 'png']))
             <img src="{{ asset('storage/' . $report->file_path) }}" alt="Attached Image"

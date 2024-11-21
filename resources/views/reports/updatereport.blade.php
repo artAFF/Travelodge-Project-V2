@@ -60,14 +60,16 @@
             </select>
         </div>
 
-
-        <select class="form-select" id="hotel" name="hotel_id">
-            @foreach ($hotels as $hotel)
-                <option value="{{ $hotel->id }}" {{ $ReportIssues->hotel_id == $hotel->id ? 'selected' : '' }}>
-                    {{ $hotel->hotel_code }}
-                </option>
-            @endforeach
-        </select>
+        <div class="mb-3">
+            <label for="hotel" class="form-label">Hotel</label>
+            <select class="form-select" id="hotel" name="hotel_id">
+                @foreach ($hotels as $hotel)
+                    <option value="{{ $hotel->id }}" {{ $ReportIssues->hotel_id == $hotel->id ? 'selected' : '' }}>
+                        {{ $hotel->hotel_code }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         @error('hotel')
             <div class="my-error">
                 <span class="text-danger">{{ $message }}</span>
