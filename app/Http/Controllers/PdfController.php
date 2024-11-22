@@ -55,9 +55,12 @@ class PdfController extends Controller
         // Apply date range filter
         if ($request->start_date) {
             if ($request->end_date) {
-                $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+                $query->whereBetween('created_at', [
+                    $request->start_date . ' 00:00:00',
+                    $request->end_date . ' 23:59:59'
+                ]);
             } else {
-                $query->where('created_at', '>=', $request->start_date);
+                $query->where('created_at', '>=', $request->start_date . ' 00:00:00');
             }
         }
 
@@ -201,16 +204,20 @@ class PdfController extends Controller
                 DB::raw("COALESCE(locations.name, 'N/A') as location_name")
             )
             ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
-                return $q->whereBetween("{$prefix}guests.created_at", [$start_date, $end_date]);
+                return $q->whereBetween("{$prefix}guests.created_at", [
+                    $start_date . ' 00:00:00',
+                    $end_date . ' 23:59:59'
+                ]);
             })
             ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
-                return $q->where("{$prefix}guests.created_at", '>=', $start_date);
+                return $q->where("{$prefix}guests.created_at", '>=', $start_date . ' 00:00:00');
             })
             ->when($query, function ($q) use ($query) {
                 return $q->where('room_no', 'like', "%{$query}%")
                     ->orWhere(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%")
                     ->orWhere('ch_name', 'like', "%{$query}%");
-            });
+            })
+            ->orderBy("{$prefix}guests.id", 'desc');
 
         return $paginate ? $query->paginate(10, ['*'], 'guests_page') : $query->get();
     }
@@ -224,14 +231,18 @@ class PdfController extends Controller
                 DB::raw("COALESCE(locations.name, 'N/A') as location_name")
             )
             ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
-                return $q->whereBetween("{$prefix}nets.created_at", [$start_date, $end_date]);
+                return $q->whereBetween("{$prefix}nets.created_at", [
+                    $start_date . ' 00:00:00',
+                    $end_date . ' 23:59:59'
+                ]);
             })
             ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
-                return $q->where("{$prefix}nets.created_at", '>=', $start_date);
+                return $q->where("{$prefix}nets.created_at", '>=', $start_date . ' 00:00:00');
             })
             ->when($query, function ($q) use ($query) {
                 return $q->where(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%");
-            });
+            })
+            ->orderBy("{$prefix}nets.id", 'desc');
 
         return $paginate ? $query->paginate(10, ['*'], 'netSpeeds_page') : $query->get();
     }
@@ -240,14 +251,18 @@ class PdfController extends Controller
     {
         $query = DB::table("{$prefix}servers")
             ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                return $q->whereBetween('created_at', [$start_date, $end_date]);
+                return $q->whereBetween('created_at', [
+                    $start_date . ' 00:00:00',
+                    $end_date . ' 23:59:59'
+                ]);
             })
             ->when($start_date && !$end_date, function ($q) use ($start_date) {
-                return $q->where('created_at', '>=', $start_date);
+                return $q->where('created_at', '>=', $start_date . ' 00:00:00');
             })
             ->when($query, function ($q) use ($query) {
                 return $q->where('server_temp', 'like', "%{$query}%");
-            });
+            })
+            ->orderBy('id', 'desc');
 
         return $paginate ? $query->paginate(10, ['*'], 'servers_page') : $query->get();
     }
@@ -261,14 +276,18 @@ class PdfController extends Controller
                 DB::raw("COALESCE(locations.name, 'N/A') as location_name")
             )
             ->when($start_date && $end_date, function ($q) use ($start_date, $end_date, $prefix) {
-                return $q->whereBetween("{$prefix}switches.created_at", [$start_date, $end_date]);
+                return $q->whereBetween("{$prefix}switches.created_at", [
+                    $start_date . ' 00:00:00',
+                    $end_date . ' 23:59:59'
+                ]);
             })
             ->when($start_date && !$end_date, function ($q) use ($start_date, $prefix) {
-                return $q->where("{$prefix}switches.created_at", '>=', $start_date);
+                return $q->where("{$prefix}switches.created_at", '>=', $start_date . ' 00:00:00');
             })
             ->when($query, function ($q) use ($query) {
                 return $q->where(DB::raw("COALESCE(locations.name, 'N/A')"), 'like', "%{$query}%");
-            });
+            })
+            ->orderBy("{$prefix}switches.id", 'desc');
 
         return $paginate ? $query->paginate(10, ['*'], 'switches_page') : $query->get();
     }
