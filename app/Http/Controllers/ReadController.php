@@ -49,8 +49,13 @@ class ReadController extends Controller
                             ->orWhere('hotel_full_name', 'like', "%{$query}%");
                     });
             })
-            ->when($user->role !== 'admin', function ($q) use ($user) {
-                $q->where('department_id', $user->department_id);
+            ->when(function ($q) use ($user) {
+                // No department restriction for admin and IT Support users
+                if ($user->role === 'admin' || $user->department_id === 1) {
+                    return false;
+                }
+                // Regular users (non-IT Support) can only see their own department
+                return $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(10)
@@ -91,8 +96,13 @@ class ReadController extends Controller
                     $query->where('hotel_code', $hotel_filter);
                 });
             })
-            ->when($user->role !== 'admin', function ($q) use ($user) {
-                $q->where('department_id', $user->department_id);
+            ->when(function ($q) use ($user) {
+                // No department restriction for admin and IT Support users
+                if ($user->role === 'admin' || $user->department_id === 1) {
+                    return false;
+                }
+                // Regular users (non-IT Support) can only see their own department
+                return $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(20)
@@ -223,7 +233,7 @@ class ReadController extends Controller
         $prefix = $this->getPrefixFromType($type);
         $source = $type;
 
-        // เปลี่ยนจาก take(10) เป็น paginate(10)
+        // Change from take(10) to paginate(10)
         $ReportGuests = DB::table("{$prefix}guests")
             ->leftJoin('locations', 'locations.id', '=', "{$prefix}guests.location_id")
             ->select("{$prefix}guests.*", 'locations.name as location_name')
