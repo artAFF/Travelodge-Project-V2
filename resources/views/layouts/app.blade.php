@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/jquery-3.7.1.min.js">
+    <link rel="icon" type="image/png" href="{{ asset('travelodge-favicon.png') }}">
     <style>
         :root {
             --primary-color: #3498db;
@@ -232,6 +233,11 @@
                                         <i class="bi bi-chevron-right ms-auto px-2"></i>
                                     </a>
                                     <ul class="collapse nav flex-column ms-1" id="submenu3" data-bs-parent="#menu">
+                                        <li class="w-100">
+                                            <a href="{{ route('structure.budget') }}" class="nav-link px-0">
+                                                <span class="d-none d-sm-inline px-3">Budgets</span>
+                                            </a>
+                                        </li>
                                         <li class="w-100">
                                             <a href="{{ route('structure.locations') }}" class="nav-link px-0">
                                                 <span class="d-none d-sm-inline px-3">Locations</span>

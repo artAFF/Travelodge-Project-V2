@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BudgetExpense;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Ehcm_guest;
@@ -64,6 +65,8 @@ class CreateController extends Controller
             'issues.*.hotel_id' => 'required|exists:hotels,id',
             'issues.*.file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'issues.*.assignee' => 'nullable|exists:users,id',
+            'issues.*.budget.expense_name.*' => 'nullable|required_with:issues.*.budget.expense_amount.*',
+            'issues.*.budget.expense_amount.*' => 'nullable|required_with:issues.*.budget.expense_name.*|numeric|min:0',
         ]);
 
         $issues = $request->input('issues');
@@ -88,6 +91,20 @@ class CreateController extends Controller
                 $travelodge->update(['file_path' => $filePath]);
             }
 
+            if (isset($issueData['budget'])) {
+                $expenseNames = $issueData['budget']['expense_name'] ?? [];
+                $expenseAmounts = $issueData['budget']['expense_amount'] ?? [];
+
+                foreach ($expenseNames as $key => $name) {
+                    if (!empty($name) && isset($expenseAmounts[$key])) {
+                        BudgetExpense::create([
+                            'report_issue_id' => $travelodge->id,
+                            'expense_name' => $name,
+                            'expense_amount' => $expenseAmounts[$key]
+                        ]);
+                    }
+                }
+            }
             // Send notifications via NotificationController
             app(NotificationController::class)->sendNewIssueNotifications($travelodge, $issueData);
         }

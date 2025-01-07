@@ -48,4 +48,34 @@
                     File</a></p>
         @endif
     @endif
+
+    <p>
+        <strong>Budget Expenses:</strong>
+        @if ($report->budgetExpenses->count() > 0)
+            <table class="table table-bordered mt-2">
+                <thead>
+                    <tr>
+                        <th>Expense Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $totalAmount = 0; @endphp
+                    @foreach ($report->budgetExpenses as $expense)
+                        <tr>
+                            <td>{{ $expense->expense_name }}</td>
+                            <td>{{ number_format($expense->expense_amount, 2) }}</td>
+                        </tr>
+                        @php $totalAmount += $expense->expense_amount; @endphp
+                    @endforeach
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong>{{ number_format($totalAmount, 2) }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        @else
+            No budget expenses.
+        @endif
+    </p>
 </div>

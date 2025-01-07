@@ -96,6 +96,32 @@
                     <input type="file" class="form-control" id="file" name="issues[0][file]"
                         accept=".pdf,.jpg,.jpeg,.png">
                 </div>
+
+                <!-- เพิ่มส่วน Budget -->
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="needBudget_0" onchange="toggleBudget(0)">
+                        <label class="form-check-label" for="needBudget_0">
+                            Add Budget Expense
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3 budget-container" id="budgetContainer_0" style="display: none;">
+                    <div class="budget-items">
+                        <div class="budget-item">
+                            <label class="form-label">Expense Name</label>
+                            <input type="text" class="form-control" name="issues[0][budget][expense_name][]">
+
+                            <label class="form-label">Amount</label>
+                            <input type="number" step="0.01" class="form-control"
+                                name="issues[0][budget][expense_amount][]">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary mt-2" onclick="addBudgetItem(0)">Add Another
+                        Expense</button>
+                </div>
+
                 <br>
                 <hr>
                 <br>
@@ -116,10 +142,29 @@
             remarksContainer.style.display = checkbox.checked ? 'block' : 'none';
         }
 
+        function toggleBudget(index) {
+            const checkbox = document.getElementById(`needBudget_${index}`);
+            const budgetContainer = document.getElementById(`budgetContainer_${index}`);
+            budgetContainer.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function addBudgetItem(index) {
+            const container = document.querySelector(`#budgetContainer_${index} .budget-items`);
+            const newItem = document.createElement('div');
+            newItem.className = 'budget-item mt-3';
+            newItem.innerHTML = `
+                <label class="form-label">Expense Name</label>
+                <input type="text" class="form-control" name="issues[${index}][budget][expense_name][]">
+
+                <label class="form-label">Amount</label>
+                <input type="number" step="0.01" class="form-control" name="issues[${index}][budget][expense_amount][]">
+            `;
+            container.appendChild(newItem);
+        }
+
         function addIssueForm() {
             const issueFormsContainer = document.getElementById('issueFormsContainer');
 
-            // เช็คว่ามีจำนวน form ครบ 5 อันหรือยัง
             if (issueFormsContainer.children.length >= 5) {
                 document.getElementById('addIssueButton').disabled = true;
                 return;
@@ -155,6 +200,17 @@
             newRemarksTextarea.id = `remarks_${issueIndex}`;
             newRemarksTextarea.name = `issues[${issueIndex}][remarks]`;
             newRemarksTextarea.value = '';
+
+            // เพิ่มส่วน Budget
+            const newBudgetCheckbox = newIssueForm.querySelector('[id^=needBudget_]');
+            const newBudgetContainer = newIssueForm.querySelector('[id^=budgetContainer_]');
+
+            newBudgetCheckbox.id = `needBudget_${issueIndex}`;
+            newBudgetCheckbox.checked = false;
+            newBudgetCheckbox.setAttribute('onchange', `toggleBudget(${issueIndex})`);
+
+            newBudgetContainer.id = `budgetContainer_${issueIndex}`;
+            newBudgetContainer.style.display = 'none';
 
             issueFormsContainer.appendChild(newIssueForm);
             issueIndex++;

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BudgetSetting;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\Hotel;
 use App\Models\Location;
 use Illuminate\Http\Request;
 
@@ -13,6 +15,34 @@ class StructureController extends Controller
     {
         // Require authentication for all methods in this controller
         $this->middleware('auth');
+    }
+
+    public function settings()
+    {
+        $hotels = Hotel::all();
+        $budgetSettings = BudgetSetting::with('hotel')->get();
+        return view('structure.budget', compact('hotels', 'budgetSettings'));
+    }
+
+    public function storeBudget(Request $request)
+    {
+        $request->validate([
+            'hotel_id' => 'required|exists:hotels,id',
+            'month' => 'required|date',
+            'budget_amount' => 'required|numeric|min:0'
+        ]);
+
+        $month = date('Y-m-d', strtotime($request->month . '-01'));
+
+        BudgetSetting::updateOrCreate(
+            [
+                'hotel_id' => $request->hotel_id,
+                'month' => $month
+            ],
+            ['budget_amount' => $request->budget_amount]
+        );
+
+        return redirect()->back()->with('success', 'Budget settings updated successfully');
     }
 
     public function locations()

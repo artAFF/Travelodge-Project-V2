@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BudgetExpense;
+use App\Models\BudgetSetting;
 use App\Models\Department;
 use App\Models\GuestRoom;
 use App\Models\Hotel;
@@ -151,8 +153,7 @@ class ReadController extends Controller
 
     public function preview($id)
     {
-        // Show preview of a specific issue
-        $report = Travelodge::findOrFail($id);
+        $report = Travelodge::with(['budgetExpenses'])->findOrFail($id);
         return view('/reports/preview-issue', compact('report'));
     }
 
@@ -267,5 +268,56 @@ class ReadController extends Controller
             default:
                 return 'Tlcmn_';
         }
+    }
+
+    public function hotelBudgetIndex()
+    {
+        $hotels = Hotel::orderBy('id')->get();
+        return view('hotel-budget.index', compact('hotels'));
+    }
+
+    public function hotelBudgetData($hotel_code = null, $month = null)
+    {
+        $query = Hotel::with(['budgetSettings', 'travelodges.budgetExpenses']);
+
+        if ($hotel_code) {
+            $query->where('hotel_code', $hotel_code);
+        }
+
+        $data = $query->first();
+
+        if (!$data) {
+            return response()->json(['error' => 'Hotel not found'], 404);
+        }
+
+        // กรองข้อมูล budget settings ตามเดือน
+        $budgetSettings = $data->budgetSettings;
+        if ($month) {
+            $budgetSettings = $budgetSettings->filter(function ($setting) use ($month) {
+                return substr($setting->month, 0, 7) === $month;
+            });
+        }
+        $totalBudget = $budgetSettings->sum('budget_amount');
+
+        // กรองข้อมูล expenses ตามเดือน
+        $expenses = collect();
+        foreach ($data->travelodges as $travelodge) {
+            $travelodgeExpenses = $travelodge->budgetExpenses;
+            if ($month) {
+                $travelodgeExpenses = $travelodgeExpenses->filter(function ($expense) use ($month) {
+                    return substr($expense->created_at, 0, 7) === $month;
+                });
+            }
+            $expenses = $expenses->concat($travelodgeExpenses);
+        }
+
+        $totalExpense = $expenses->sum('expense_amount');
+
+        return response()->json([
+            'total_budget' => number_format($totalBudget, 2),
+            'total_expense' => number_format($totalExpense, 2),
+            'remaining_budget' => number_format($totalBudget - $totalExpense, 2),
+            'expenses' => $expenses
+        ]);
     }
 }

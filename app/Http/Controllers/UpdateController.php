@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BudgetExpense;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Ehcm_guest;
@@ -56,7 +57,7 @@ class UpdateController extends Controller
 
     public function UpdateIssue(Request $request, $id)
     {
-        // Validate update data
+        // Existing validation
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'department_id' => 'required|exists:departments,id',
@@ -65,6 +66,8 @@ class UpdateController extends Controller
             'hotel_id' => 'required|exists:hotels,id',
             'assignee' => 'nullable|exists:users,id',
             'status' => 'required|in:0,1',
+            'budget.expense_name.*' => 'nullable|required_with:budget.expense_amount.*',
+            'budget.expense_amount.*' => 'nullable|required_with:budget.expense_name.*|numeric|min:0',
         ]);
 
         $travelodge = Travelodge::findOrFail($id);
@@ -89,6 +92,25 @@ class UpdateController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads', $filename, 'public');
             $travelodge->update(['file_path' => $filePath]);
+        }
+
+        // Handle budget expenses
+        if ($request->has('budget')) {
+            // Delete existing budget expenses
+            $travelodge->budgetExpenses()->delete();
+
+            $expenseNames = $request->input('budget.expense_name', []);
+            $expenseAmounts = $request->input('budget.expense_amount', []);
+
+            foreach ($expenseNames as $key => $name) {
+                if (!empty($name) && isset($expenseAmounts[$key])) {
+                    BudgetExpense::create([
+                        'report_issue_id' => $travelodge->id,
+                        'expense_name' => $name,
+                        'expense_amount' => $expenseAmounts[$key]
+                    ]);
+                }
+            }
         }
 
         app(NotificationController::class)->sendIssueUpdateNotifications($travelodge);

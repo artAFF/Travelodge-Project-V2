@@ -101,6 +101,12 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     Route::post('/structure/categories', [StructureController::class, 'storeCategory'])->name('structure.categories.store');
     Route::get('/structure/departments', [StructureController::class, 'departments'])->name('structure.departments');
     Route::post('/structure/departments', [StructureController::class, 'storeDepartment'])->name('structure.departments.store');
+    // Budget Routes
+    Route::get('/structure/budget', [StructureController::class, 'settings'])->name('structure.budget');
+    Route::post('/structure/budget', [StructureController::class, 'storeBudget'])->name('structure.budget.store');
+    Route::get('/hotel-budget', [ReadController::class, 'hotelBudgetIndex'])->name('hotel.budget.index');
+    Route::get('/hotel-budget/data/{hotel_code?}/{month?}', [ReadController::class, 'hotelBudgetData'])
+        ->name('hotel.budget.data');
 
     // Search and PDF Download Routes
     Route::get('/daily/search', [PdfController::class, 'search'])->name('search');

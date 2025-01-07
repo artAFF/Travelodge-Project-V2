@@ -8,6 +8,7 @@
             <div class="col-md-8">
                 <a href="/reports/addIssue" class="btn btn-primary">Add Issue</a>
                 <a href="/reports/inprocess" class="btn btn-warning">All In-process</a>
+                <a href="/hotel-budget" class="btn btn-danger">View Budget</a>
             </div>
             <div class="col-md-4">
                 <form action="{{ route('reportIssue') }}" method="GET">

@@ -47,7 +47,6 @@
             <textarea class="form-control" id="remarks" name="remarks" rows="5">{{ $ReportIssues->remarks }}</textarea>
         </div>
 
-
         <div class="mb-3">
             <label for="department" class="form-label">Department</label>
             <select class="form-select" id="department" name="department_id">
@@ -108,6 +107,46 @@
             </div>
         @endif
 
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="needBudget" onchange="toggleBudget()"
+                    {{ $ReportIssues->budgetExpenses->count() > 0 ? 'checked' : '' }}>
+                <label class="form-check-label" for="needBudget">
+                    Add Budget Expense
+                </label>
+            </div>
+        </div>
+
+        <div class="mb-3 budget-container" id="budgetContainer"
+            style="display: {{ $ReportIssues->budgetExpenses->count() > 0 ? 'block' : 'none' }};">
+            <div class="budget-items">
+                @if ($ReportIssues->budgetExpenses->count() > 0)
+                    @foreach ($ReportIssues->budgetExpenses as $expense)
+                        <div class="budget-item mb-3">
+                            <label class="form-label">Expense Name</label>
+                            <input type="text" class="form-control" name="budget[expense_name][]"
+                                value="{{ $expense->expense_name }}">
+
+                            <label class="form-label">Amount</label>
+                            <input type="number" step="0.01" class="form-control" name="budget[expense_amount][]"
+                                value="{{ $expense->expense_amount }}">
+                        </div>
+                    @endforeach
+                @else
+                    <div class="budget-item">
+                        <label class="form-label">Expense Name</label>
+                        <input type="text" class="form-control" name="budget[expense_name][]">
+
+                        <label class="form-label">Amount</label>
+                        <input type="number" step="0.01" class="form-control" name="budget[expense_amount][]">
+                    </div>
+                @endif
+            </div>
+            <button type="button" class="btn btn-secondary mt-2" onclick="addBudgetItem()">
+                Add Another Expense
+            </button>
+        </div>
+
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
     </form>
@@ -117,6 +156,26 @@
             const checkbox = document.getElementById('needRemarks');
             const remarksContainer = document.getElementById('remarksContainer');
             remarksContainer.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleBudget() {
+            const checkbox = document.getElementById('needBudget');
+            const budgetContainer = document.getElementById('budgetContainer');
+            budgetContainer.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function addBudgetItem() {
+            const container = document.querySelector('.budget-items');
+            const newItem = document.createElement('div');
+            newItem.className = 'budget-item mb-3';
+            newItem.innerHTML = `
+        <label class="form-label">Expense Name</label>
+        <input type="text" class="form-control" name="budget[expense_name][]">
+
+        <label class="form-label">Amount</label>
+        <input type="number" step="0.01" class="form-control" name="budget[expense_amount][]">
+    `;
+            container.appendChild(newItem);
         }
     </script>
 @endsection

@@ -15,4 +15,9 @@ class Hotel extends Model
     {
         return $this->hasMany(Travelodge::class, 'hotel_id');
     }
+
+    public function budgetSettings()
+    {
+        return $this->hasMany(BudgetSetting::class);
+    }
 }
