@@ -20,6 +20,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 
 class ReadController extends Controller
@@ -30,7 +31,7 @@ class ReadController extends Controller
         $this->middleware('auth');
     }
 
-    public function TableReportIssue(Request $request)
+    /* public function TableReportIssue(Request $request)
     {
         $query = $request->input('query');
         $sort_by = $request->input('sort_by', 'id');
@@ -49,13 +50,12 @@ class ReadController extends Controller
                             ->orWhere('hotel_full_name', 'like', "%{$query}%");
                     });
             })
-            ->when(function ($q) use ($user) {
-                // No department restriction for admin and IT Support users
-                if ($user->role === 'admin' || $user->department_id === 1) {
-                    return false;
-                }
-                // Regular users (non-IT Support) can only see their own department
-                return $q->where('department_id', $user->department_id);
+            // Check user access control for viewing department data
+            // If user is NOT admin AND NOT IT Support (department_id = 1),
+            // then filter data by user's department
+            ->when(($user->role !== 'admin' && $user->department_id !== 1), function ($q) use ($user) {
+                // Restrict data to only show records from user's department
+                $q->where('department_id', $user->department_id);
             })
             ->orderBy($sort_by, $sort_order)
             ->paginate(10)
@@ -66,6 +66,62 @@ class ReadController extends Controller
         })->get();
 
         return view('/reports/reportIssue', compact('ReportIssues', 'query', 'sort_by', 'sort_order', 'itSupportUsers'));
+    } */
+
+    public function TableReportIssue(Request $request)
+    {
+        // Get request parameters with default values
+        $query = $request->input('query');
+        $sort_by = $request->input('sort_by', 'id');
+        $sort_order = $request->input('sort_order', 'desc');
+        $months = $request->input('months', 3); // Default to 3 months
+        $user = auth()->user();
+
+        // Build query with relationships and filters
+        $ReportIssues = Travelodge::with(['category', 'department', 'assignee', 'hotel'])
+            // Search functionality across multiple related tables
+            ->when($query, function ($q) use ($query) {
+                $q->whereHas('category', function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%");
+                })->orWhereHas('department', function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%");
+                })->orWhere('detail', 'like', "%{$query}%")
+                    ->orWhereHas('hotel', function ($q) use ($query) {
+                        $q->where('hotel_code', 'like', "%{$query}%")
+                            ->orWhere('hotel_full_name', 'like', "%{$query}%");
+                    });
+            })
+            // Filter records for the last X months
+            ->where('created_at', '>=', Carbon::now()->subMonths($months))
+            // Access control: Filter by user's department unless admin or IT Support
+            ->when(($user->role !== 'admin' && $user->department_id !== 1), function ($q) use ($user) {
+                $q->where('department_id', $user->department_id);
+            })
+            // Apply sorting and pagination
+            ->orderBy($sort_by, $sort_order)
+            ->paginate(10)
+            // Append query parameters to pagination links
+            ->appends([
+                'query' => $query,
+                'sort_by' => $sort_by,
+                'sort_order' => $sort_order,
+                'months' => $months
+            ]);
+
+        // Get all IT Support users for the view
+        $itSupportUsers = User::whereHas('department', function ($query) {
+            $query->where('name', 'IT Support');
+        })->get();
+
+        // Return view with necessary data
+        return view('/reports/reportIssue', compact(
+            'ReportIssues',
+            'query',
+            'sort_by',
+            'sort_order',
+            'months',
+            'itSupportUsers'
+        ));
     }
 
     public function inprocess(Request $request)
