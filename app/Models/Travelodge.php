@@ -15,7 +15,8 @@ class Travelodge extends Model
         'hotel_id',
         'status',
         'file_path',
-        'assignee_id'
+        'assignee_id',
+        'created_by',
     ];
 
     public function category()
@@ -41,5 +42,10 @@ class Travelodge extends Model
     public function budgetExpenses()
     {
         return $this->hasMany(BudgetExpense::class, 'report_issue_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

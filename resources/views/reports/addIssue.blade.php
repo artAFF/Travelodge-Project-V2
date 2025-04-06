@@ -4,6 +4,9 @@
 @section('content')
     <form action="/insertIssue" method="POST" id="issueForm" enctype="multipart/form-data">
         @csrf
+
+        <input type="hidden" name="created_by" value="{{ auth()->id() }}">
+
         <div id="issueFormsContainer">
             <div class="issue-form">
                 <h3 class="issue-title">Issue #1</h3>
@@ -97,7 +100,7 @@
                         accept=".pdf,.jpg,.jpeg,.png">
                 </div>
 
-                <!-- เพิ่มส่วน Budget -->
+
                 <div class="mb-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="needBudget_0" onchange="toggleBudget(0)">
@@ -127,6 +130,12 @@
                 <br>
             </div>
         </div>
+
+
+        <div class="mb-3">
+            <p class="text-muted">Created by: {{ auth()->user()->name }}</p>
+        </div>
+
         <button type="button" id="addIssueButton" class="btn btn-warning"><i class="bi bi-plus-circle"></i></button>
         <button type="button" id="removeIssueButton" class="btn btn-danger"><i class="bi bi-dash-circle"></i></button>
         <button type="submit" class="btn btn-primary">Submit</button>

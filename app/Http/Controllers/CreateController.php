@@ -67,12 +67,14 @@ class CreateController extends Controller
             'issues.*.assignee' => 'nullable|exists:users,id',
             'issues.*.budget.expense_name.*' => 'nullable|required_with:issues.*.budget.expense_amount.*',
             'issues.*.budget.expense_amount.*' => 'nullable|required_with:issues.*.budget.expense_name.*|numeric|min:0',
+            'created_by' => 'required|exists:users,id',
         ]);
 
         $issues = $request->input('issues');
+        $createdBy = $request->input('created_by');
 
         foreach ($issues as $index => $issueData) {
-            // Create new Travelodge issue
+            // Create new Travelodge issue with creator info
             $travelodge = Travelodge::create([
                 'category_id' => $issueData['category_id'],
                 'department_id' => $issueData['department_id'],
@@ -81,6 +83,7 @@ class CreateController extends Controller
                 'status' => $issueData['status'],
                 'assignee_id' => $issueData['assignee'] ?: null,
                 'remarks' => $issueData['remarks'] ?? null,
+                'created_by' => $createdBy,
             ]);
 
             // Handle file upload if present
