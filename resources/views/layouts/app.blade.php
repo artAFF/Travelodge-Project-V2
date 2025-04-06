@@ -197,6 +197,8 @@
                                             Report PDF</span>
                                     </a>
                                 </li>
+                            @endif
+                            @if (auth()->user()->role === 'admin' || auth()->user()->department_id === 1)
                                 <li class="main-menu-item">
                                     <a href="#submenu2" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
                                         <i class="bi bi-calendar-check"></i>
@@ -226,6 +228,8 @@
                                         </li>
                                     </ul>
                                 </li>
+                            @endif
+                            @if (auth()->user()->role === 'admin')
                                 <li class="main-menu-item">
                                     <a href="#submenu3" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
                                         <i class="bi bi-gear"></i>

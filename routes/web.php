@@ -59,8 +59,35 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     Route::post('/filter/filter-data', [PdfController::class, 'filterData'])->name('filter.data');
     Route::get('/filter/download-pdf', [PdfController::class, 'downloadPDF'])->name('download.pdf');
 
+    // Structure Management Routes
+    Route::get('/structure/locations', [StructureController::class, 'locations'])->name('structure.locations');
+    Route::post('/structure/locations', [StructureController::class, 'storeLocation'])->name('structure.locations.store');
+    Route::get('/structure/categories', [StructureController::class, 'categories'])->name('structure.categories');
+    Route::post('/structure/categories', [StructureController::class, 'storeCategory'])->name('structure.categories.store');
+    Route::get('/structure/departments', [StructureController::class, 'departments'])->name('structure.departments');
+    Route::post('/structure/departments', [StructureController::class, 'storeDepartment'])->name('structure.departments.store');
+    // Budget Routes
+    Route::get('/structure/budget', [StructureController::class, 'settings'])->name('structure.budget');
+    Route::post('/structure/budget', [StructureController::class, 'storeBudget'])->name('structure.budget.store');
+    Route::get('/hotel-budget', [ReadController::class, 'hotelBudgetIndex'])->name('hotel.budget.index');
+    Route::get('/hotel-budget/data/{hotel_code?}/{month?}', [ReadController::class, 'hotelBudgetData'])
+        ->name('hotel.budget.data');
+
+    // User Management Routes
+    Route::get('/users/index', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+});
+
+// Daily Checklist Routes - For Admin or Department ID 1
+Route::middleware(['auth', 'check.admin.or.department:1'])->group(function () {
     // Daily Report Routes
     Route::get('/daily/hotels/{type}', [ReadController::class, 'TableReportAll'])->name('TableReportAll');
+    Route::get('/daily/search', [PdfController::class, 'search'])->name('search');
+    Route::get('/daily/download-pdf', [PdfController::class, 'downloadPdfDaily'])->name('download.pdfdaily');
 
     // Guest Room Checking Routes
     Route::get('/guest/reportGuest', [ReadController::class, 'TableReportGuest'])->name("reportGuest");
@@ -93,32 +120,6 @@ Route::middleware(['auth', 'check.role:admin'])->group(function () {
     Route::get('/daily/hotels/{type}/updateNetSpeed/{id}', [UpdateController::class, 'UpdateReportNetSpeed'])->name('updateNetSpeed');
     Route::post('/daily/hotels/{type}/updatePNetSpeed/{id}', [UpdateController::class, 'UpdateReportNetSpeedProcess'])->name('updatePNetSpeed');
     Route::delete('/daily/hotels/{type}/deleteNetSpeed/{id}', [DeleteController::class, 'DeleteNetSpeed'])->name('deleteNetSpeed');
-
-    // Structure Management Routes
-    Route::get('/structure/locations', [StructureController::class, 'locations'])->name('structure.locations');
-    Route::post('/structure/locations', [StructureController::class, 'storeLocation'])->name('structure.locations.store');
-    Route::get('/structure/categories', [StructureController::class, 'categories'])->name('structure.categories');
-    Route::post('/structure/categories', [StructureController::class, 'storeCategory'])->name('structure.categories.store');
-    Route::get('/structure/departments', [StructureController::class, 'departments'])->name('structure.departments');
-    Route::post('/structure/departments', [StructureController::class, 'storeDepartment'])->name('structure.departments.store');
-    // Budget Routes
-    Route::get('/structure/budget', [StructureController::class, 'settings'])->name('structure.budget');
-    Route::post('/structure/budget', [StructureController::class, 'storeBudget'])->name('structure.budget.store');
-    Route::get('/hotel-budget', [ReadController::class, 'hotelBudgetIndex'])->name('hotel.budget.index');
-    Route::get('/hotel-budget/data/{hotel_code?}/{month?}', [ReadController::class, 'hotelBudgetData'])
-        ->name('hotel.budget.data');
-
-    // Search and PDF Download Routes
-    Route::get('/daily/search', [PdfController::class, 'search'])->name('search');
-    Route::get('/daily/download-pdf', [PdfController::class, 'downloadPdfDaily'])->name('download.pdfdaily');
-
-    // User Management Routes
-    Route::get('/users/index', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 // Legacy Routes

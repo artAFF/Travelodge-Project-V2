@@ -11,29 +11,30 @@ class NotificationController extends Controller
     // Main notification coordinator methods
     public function sendNewIssueNotifications($travelodge, $issueData)
     {
-        $this->sendLineNotification($travelodge, $issueData);
+        // $this->sendLineNotification($travelodge, $issueData);  // Disabled Line notification
         $this->sendDiscordNotification($travelodge, $issueData);
     }
 
     public function sendIssueUpdateNotifications($travelodge)
     {
-        $this->sendLineIssueNotification($travelodge);
+        // $this->sendLineIssueNotification($travelodge);  // Disabled Line notification
         $this->sendDiscordIssueNotification($travelodge);
     }
 
     public function sendStatusUpdateNotifications($travelodge, $oldStatus, $newStatus)
     {
-        $this->sendLineStatusNotification($travelodge, $oldStatus, $newStatus);
+        // $this->sendLineStatusNotification($travelodge, $oldStatus, $newStatus);  // Disabled Line notification
         $this->sendDiscordStatusNotification($travelodge, $oldStatus, $newStatus);
     }
 
     public function sendAssigneeUpdateNotifications($travelodge, $oldAssignee, $newAssignee)
     {
-        $this->sendLineAssigneeNotification($travelodge, $oldAssignee, $newAssignee);
+        // $this->sendLineAssigneeNotification($travelodge, $oldAssignee, $newAssignee);  // Disabled Line notification
         $this->sendDiscordAssigneeNotification($travelodge, $oldAssignee, $newAssignee);
     }
 
-    // Line Notification Methods
+    // Line Notification Methods - Disabled
+    /*
     private function sendLineNotification($travelodge, $issueData)
     {
         $accessToken = env('LINE_NOTIFY_TOKEN');
@@ -118,6 +119,7 @@ class NotificationController extends Controller
             return false;
         }
     }
+    */
 
     // Discord Notification Methods
     private function sendDiscordNotification($travelodge, $issueData)
