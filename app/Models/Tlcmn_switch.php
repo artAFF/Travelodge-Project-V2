@@ -13,11 +13,17 @@ class Tlcmn_switch extends Model
         'location_id',
         'ups_battery',
         'ups_time',
-        'ups_temp'
+        'ups_temp',
+        'created_by',
     ];
 
     public function location()
     {
         return $this->belongsTo(location::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

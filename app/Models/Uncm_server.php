@@ -13,6 +13,12 @@ class Uncm_server extends Model
         'server_temp',
         'ups_temp',
         'ups_battery',
-        'ups_time'
+        'ups_time',
+        'created_by',
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -144,6 +144,7 @@ class CreateController extends Controller
             'download' => $request->download,
             'ch_no' => $request->ch_no,
             'ch_name' => $request->ch_name,
+            'created_by' => auth()->id(),
             'created_at' => now()
         ];
 
@@ -175,6 +176,7 @@ class CreateController extends Controller
             'ups_battery' => $request->ups_battery,
             'ups_time' => $request->ups_time,
             'ups_temp' => $request->ups_temp,
+            'created_by' => auth()->id(),
             'created_at' => now()
         ];
 
@@ -204,6 +206,7 @@ class CreateController extends Controller
             'ups_temp' => $request->ups_temp,
             'ups_battery' => $request->ups_battery,
             'ups_time' => $request->ups_time,
+            'created_by' => auth()->id(),
             'created_at' => now()
         ];
 
@@ -233,6 +236,7 @@ class CreateController extends Controller
             'location_id' => $request->location_id,
             'upload' => $request->upload,
             'download' => $request->download,
+            'created_by' => auth()->id(),
             'created_at' => now()
         ];
 

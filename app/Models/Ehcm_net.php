@@ -12,11 +12,17 @@ class Ehcm_net extends Model
     protected $fillable = [
         'location_id',
         'download',
-        'upload'
+        'upload',
+        'created_by',
     ];
 
     public function location()
     {
         return $this->belongsTo(location::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
