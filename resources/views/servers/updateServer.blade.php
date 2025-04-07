@@ -3,7 +3,8 @@
 
 @section('content')
     <div class="container">
-        <form action="{{ route('updatePserver', ['type' => $type, 'id' => $ReportServers->id]) }}" method="POST">
+        <form action="{{ route('updatePserver', ['type' => $type, 'id' => $ReportServers->id]) }}" method="POST"
+            onsubmit="return validateForm()">
             @csrf
 
             <div class="form-section">
@@ -11,8 +12,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" class="form-control" id="server_temp" name="server_temp"
-                        placeholder="Server Temperature" value="{{ $ReportServers->server_temp }}">
+                        placeholder="Server Temperature" value="{{ $ReportServers->server_temp }}" min="0"
+                        max="100" oninput="validateInput(this, 100, 'server_temp_error')">
                     <label for="server_temp">Server Temperature (°C)</label>
+                    <div id="server_temp_error" class="text-danger" style="display:none;">Server temperature must not exceed
+                        100°C</div>
                 </div>
                 @error('server_temp')
                     <div class="text-danger">{{ $message }}</div>
@@ -20,8 +24,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_temp" name="ups_temp"
-                        placeholder="UPS Temperature" value="{{ $ReportServers->ups_temp }}">
+                        placeholder="UPS Temperature" value="{{ $ReportServers->ups_temp }}" min="0" max="100"
+                        oninput="validateInput(this, 100, 'ups_temp_error')">
                     <label for="ups_temp">UPS Temperature (°C)</label>
+                    <div id="ups_temp_error" class="text-danger" style="display:none;">UPS temperature must not exceed 100°C
+                    </div>
                 </div>
                 @error('ups_temp')
                     <div class="text-danger">{{ $message }}</div>
@@ -29,8 +36,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_battery" name="ups_battery"
-                        placeholder="UPS Battery Percentage" value="{{ $ReportServers->ups_battery }}">
+                        placeholder="UPS Battery Percentage" value="{{ $ReportServers->ups_battery }}" min="0"
+                        max="100" oninput="validateInput(this, 100, 'ups_battery_error')">
                     <label for="ups_battery">UPS Battery Percentage (%)</label>
+                    <div id="ups_battery_error" class="text-danger" style="display:none;">UPS battery percentage must not
+                        exceed 100%</div>
                 </div>
                 @error('ups_battery')
                     <div class="text-danger">{{ $message }}</div>
@@ -38,8 +48,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_time" name="ups_time"
-                        placeholder="UPS Period Of Service Available" value="{{ $ReportServers->ups_time }}">
+                        placeholder="UPS Period Of Service Available" value="{{ $ReportServers->ups_time }}" min="0"
+                        max="600" oninput="validateInput(this, 600, 'ups_time_error')">
                     <label for="ups_time">UPS Period Of Service Available (minutes)</label>
+                    <div id="ups_time_error" class="text-danger" style="display:none;">UPS time must not exceed 600 minutes
+                    </div>
                 </div>
                 @error('ups_time')
                     <div class="text-danger">{{ $message }}</div>
@@ -119,4 +132,61 @@
             }
         }
     </style>
+
+    <script>
+        function validateInput(input, maxValue, errorId) {
+            const value = parseFloat(input.value);
+            const errorDiv = document.getElementById(errorId);
+
+            if (value > maxValue) {
+                errorDiv.style.display = 'block';
+                input.classList.add('is-invalid');
+            } else {
+                errorDiv.style.display = 'none';
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        function validateForm() {
+            const serverTemp = parseFloat(document.getElementById('server_temp').value);
+            const upsTemp = parseFloat(document.getElementById('ups_temp').value);
+            const upsBattery = parseFloat(document.getElementById('ups_battery').value);
+            const upsTime = parseFloat(document.getElementById('ups_time').value);
+
+            let isValid = true;
+
+            if (serverTemp > 100) {
+                document.getElementById('server_temp_error').style.display = 'block';
+                document.getElementById('server_temp').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (upsTemp > 100) {
+                document.getElementById('ups_temp_error').style.display = 'block';
+                document.getElementById('ups_temp').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (upsBattery > 100) {
+                document.getElementById('ups_battery_error').style.display = 'block';
+                document.getElementById('ups_battery').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (upsTime > 600) {
+                document.getElementById('ups_time_error').style.display = 'block';
+                document.getElementById('ups_time').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            validateInput(document.getElementById('server_temp'), 100, 'server_temp_error');
+            validateInput(document.getElementById('ups_temp'), 100, 'ups_temp_error');
+            validateInput(document.getElementById('ups_battery'), 100, 'ups_battery_error');
+            validateInput(document.getElementById('ups_time'), 600, 'ups_time_error');
+        });
+    </script>
 @endsection

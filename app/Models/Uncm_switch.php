@@ -13,7 +13,8 @@ class Uncm_switch extends Model
         'location_id',
         'ups_battery',
         'ups_time',
-        'ups_temp'
+        'ups_temp',
+        'created_by',
     ];
 
     public function location()

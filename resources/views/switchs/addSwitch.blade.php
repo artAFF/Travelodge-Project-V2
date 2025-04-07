@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="container">
-        <form action="/insertSwitch" method="POST">
+        <form action="/insertSwitch" method="POST" onsubmit="return validateForm()">
             @csrf
 
             <div class="form-section">
@@ -53,8 +53,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_battery" name="ups_battery"
-                        placeholder="UPS Battery Percentage">
+                        placeholder="UPS Battery Percentage" min="0" max="100"
+                        oninput="validateInput(this, 100, 'ups_battery_error')">
                     <label for="ups_battery">UPS Battery Percentage (%)</label>
+                    <div id="ups_battery_error" class="text-danger" style="display:none;">UPS battery percentage must not
+                        exceed 100%</div>
                 </div>
                 @error('ups_battery')
                     <div class="text-danger">{{ $message }}</div>
@@ -62,8 +65,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_time" name="ups_time"
-                        placeholder="UPS Period Of Service Available">
+                        placeholder="UPS Period Of Service Available" min="0" max="300"
+                        oninput="validateInput(this, 300, 'ups_time_error')">
                     <label for="ups_time">UPS Period Of Service Available (minutes)</label>
+                    <div id="ups_time_error" class="text-danger" style="display:none;">UPS time must not exceed 300 minutes
+                    </div>
                 </div>
                 @error('ups_time')
                     <div class="text-danger">{{ $message }}</div>
@@ -71,8 +77,11 @@
 
                 <div class="form-floating mb-3">
                     <input type="number" step="0.01" class="form-control" id="ups_temp" name="ups_temp"
-                        placeholder="Switch Temperature">
+                        placeholder="Switch Temperature" min="0" max="100"
+                        oninput="validateInput(this, 100, 'ups_temp_error')">
                     <label for="ups_temp">Switch Temperature (°C)</label>
+                    <div id="ups_temp_error" class="text-danger" style="display:none;">Switch temperature must not exceed
+                        100°C</div>
                 </div>
                 @error('ups_temp')
                     <div class="text-danger">{{ $message }}</div>
@@ -196,5 +205,46 @@
             // Initial update
             updateLocation();
         });
+
+        function validateInput(input, maxValue, errorId) {
+            const value = parseFloat(input.value);
+            const errorDiv = document.getElementById(errorId);
+
+            if (value > maxValue) {
+                errorDiv.style.display = 'block';
+                input.classList.add('is-invalid');
+            } else {
+                errorDiv.style.display = 'none';
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        function validateForm() {
+            const upsBattery = parseFloat(document.getElementById('ups_battery').value);
+            const upsTime = parseFloat(document.getElementById('ups_time').value);
+            const upsTemp = parseFloat(document.getElementById('ups_temp').value);
+
+            let isValid = true;
+
+            if (upsBattery > 100) {
+                document.getElementById('ups_battery_error').style.display = 'block';
+                document.getElementById('ups_battery').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (upsTime > 300) {
+                document.getElementById('ups_time_error').style.display = 'block';
+                document.getElementById('ups_time').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (upsTemp > 100) {
+                document.getElementById('ups_temp_error').style.display = 'block';
+                document.getElementById('ups_temp').classList.add('is-invalid');
+                isValid = false;
+            }
+
+            return isValid;
+        }
     </script>
 @endsection
