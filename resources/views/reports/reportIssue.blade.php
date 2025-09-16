@@ -112,6 +112,25 @@
         </div>
     </div>
 
+    <style>
+        /* ปรับความกว้างของ modal ให้เต็มจอในขนาดใหญ่ */
+        .modal-xl {
+            max-width: 90%;
+        }
+
+        /* เมื่อใช้บนอุปกรณ์มือถือ จะปรับเป็นแนวตั้ง */
+        @media (max-width: 768px) {
+            #previewContent .report-content {
+                flex-direction: column !important;
+            }
+
+            #previewContent .report-left-column {
+                border-right: none !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -123,6 +142,10 @@
                         .then(response => response.text())
                         .then(data => {
                             document.getElementById('previewContent').innerHTML = data;
+
+                            // ปรับขนาด modal ให้เป็นแนวนอนแบบสี่เหลี่ยมผืนผ้า
+                            document.querySelector('.modal-dialog').classList.add('modal-xl');
+
                             new bootstrap.Modal(document.getElementById('previewModal')).show();
                         });
                 });

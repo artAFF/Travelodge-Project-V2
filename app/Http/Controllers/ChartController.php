@@ -250,7 +250,8 @@ class ChartController extends Controller
             ->get();
 
         $categories = $categoriesWithCounts->map(function ($item) {
-            return $item->category->name;
+            // ตรวจสอบว่า category มีค่าหรือไม่ก่อนเข้าถึงคุณสมบัติ name
+            return $item->category ? $item->category->name : 'No Category';
         })->toArray();
 
         $data = $categoriesWithCounts->pluck('count')->toArray();

@@ -102,7 +102,8 @@
 
         @if ($ReportIssues->file_path)
             <div class="mb-3">
-                <p>Current file: <a href="{{ asset('storage/' . $ReportIssues->file_path) }}" target="_blank">View File</a>
+                <p>Current file: <a href="{{ asset('storage/' . $ReportIssues->file_path) }}"
+                        target="_blank">{{ basename($ReportIssues->file_path) }}</a>
                 </p>
             </div>
         @endif
